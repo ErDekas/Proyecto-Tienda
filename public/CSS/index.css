@@ -1,0 +1,100 @@
+/* Importar fuentes */
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+/* Importar otros archivos css */
+@import url(./header.css);
+@import url(./usuario.css);
+@import url(./producto.css);
+@import url(./categorias.css);
+@import url(./error.css);
+@import url(./footer.css);
+@import url(./carrito.css);
+
+/* Variables globales */
+:root {
+  /* Colores */
+  --color-primario: #6366f1;
+  --color-secundario: #818cf8;
+  --color-resaltar: #f43f5e;
+  --color-fondo: #0f172a;
+  --color-texto: #e2e8f0;
+  --color-fondo-principal: #1e293b;
+  --color-gris-oscuro: #334155;
+  --color-gris-claro: #94a3b8;
+
+  /* Espaciado */
+  --espaciado: 2rem;
+  --espaciado-pequeno: 1rem;
+  --espaciado-grande: 3rem;
+  --borde-radio: 12px;
+
+  /* Sombras */
+  --sombra-pequena: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --sombra-mediana: 0 4px 8px rgba(0, 0, 0, 0.4);
+  --sombra-grande: 0 8px 16px rgba(0, 0, 0, 0.5);
+
+  /* Fuentes */
+  --fuente-especial: "Orbitron", sans-serif;
+  --fuente-titulos: "Space Grotesk", sans-serif;
+  --fuente-texto: "Inter", sans-serif;
+  --texto-base: 16px;
+  --texto-pequeno: 0.875rem;
+  --texto-grande: 1.25rem;
+  --texto-muy-grande: 1.75rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--fuente-texto);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100%;
+  margin: 0;
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--fuente-titulos);
+  margin-bottom: var(--espaciado-pequeno);
+  color: var(--color-texto);
+}
+
+#tienda {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: var(--espaciado);
+  background-color: var(--color-fondo-principal);
+  box-shadow: var(--sombra-mediana);
+  border-radius: var(--borde-radio);
+  border: 1px solid var(--color-gris-oscuro);
+}
+
+@media (max-width: 768px) {
+  html,
+  body {
+    overflow-x: hidden;
+    height: 100%;
+  }
+  #tienda {
+    padding: var(--espaciado-pequeno);
+  }
+}

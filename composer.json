@@ -1,0 +1,28 @@
+{
+    "name": "deka/proyecto-tienda",
+    "description": "Tienda en PHP",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Deka\\ProyectoTienda\\": "src/",
+            "Controllers\\": "./src/Controllers",
+            "Models\\": "./src/Models",
+            "Lib\\": "./src/Lib",
+            "Repositories\\": "./src/Repositories",
+            "Services\\": "./src/Services",
+            "Views\\": "./src/Views",
+            "Routes\\": "./src/Routes"
+        }
+    },
+    "authors": [
+        {
+            "name": "ErDekas",
+            "email": "pabletor0505@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "vlucas/phpdotenv": "^5.6",
+        "phpmailer/phpmailer": "^6.9"
+    }
+}

@@ -1,0 +1,192 @@
+.guardarCategoria {
+  width: 100%;
+  max-width: 30rem;
+  background-color: var(--color-fondo-principal);
+  padding: var(--espaciado);
+  border-radius: var(--borde-radio);
+  box-shadow: var(--sombra-mediana);
+  margin: var(--espaciado-grande);
+  font-family: var(--fuente-texto);
+  color: var(--color-texto);
+  display: flex;
+  flex-direction: column;
+  justify-self: center;
+  align-self: center;
+  border: 1px solid var(--color-gris-oscuro);
+}
+
+.guardarCategoria h2 {
+  font-size: var(--texto-grande);
+  color: var(--color-primario);
+  margin-bottom: var(--espaciado-pequeno);
+  font-family: var(--fuente-titulos);
+  text-align: center;
+}
+
+.guardarCategoria form {
+  display: flex;
+  flex-direction: column;
+}
+
+.guardarCategoria label {
+  font-size: var(--texto-base);
+  margin-bottom: var(--espaciado-pequeno);
+  font-weight: 500;
+  color: var(--color-gris-claro);
+}
+
+.guardarCategoria input[type="text"] {
+  padding: 0.75rem;
+  margin-bottom: var(--espaciado-pequeno);
+  border: 1px solid var(--color-gris-oscuro);
+  border-radius: var(--borde-radio);
+  font-size: var(--texto-base);
+  font-family: var(--fuente-texto);
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  transition: border-color 0.3s;
+}
+
+.guardarCategoria input[type="submit"] {
+  background-color: var(--color-primario);
+  color: var(--color-texto);
+  font-size: var(--texto-base);
+  font-weight: 600;
+  padding: 0.75rem;
+  border: none;
+  border-radius: var(--borde-radio);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: var(--espaciado-pequeno);
+}
+
+.guardarCategoria input[type="submit"]:hover {
+  background-color: var(--color-resaltar);
+  transform: translateY(-2px);
+}
+
+.guardarCategoria p {
+  font-size: var(--texto-pequeno);
+  text-align: center;
+  margin-top: var(--espaciado-pequeno);
+  color: var(--color-gris-claro);
+}
+
+.guardarCategoria p a {
+  color: var(--color-primario);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.guardarCategoria p a:hover {
+  color: var(--color-resaltar);
+}
+
+.guardarCategoria p[style="color:red;"] {
+  color: var(--color-resaltar) !important;
+  font-size: var(--texto-pequeno);
+  margin-bottom: var(--espaciado-pequeno);
+}
+
+#listadoCategorias {
+  width: 100%;
+  height: auto;
+  min-height: 20rem;
+  display: flex;
+  flex-direction: column;
+  padding: var(--espaciado);
+}
+
+.btnCategorias {
+  width: 100%;
+  height: 3rem;
+  display: flex;
+  flex-direction: row;
+  gap: var(--espaciado);
+  margin-bottom: var(--espaciado-pequeno);
+}
+
+.botonesCategorias {
+  width: 15rem;
+  height: 3rem;
+  background-color: var(--color-fondo-principal);
+  border: 2px solid var(--color-primario);
+  border-radius: var(--borde-radio);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--texto-muy-grande);
+  text-decoration: none;
+  color: var(--color-primario);
+  box-shadow: var(--sombra-mediana);
+  transition: all 0.3s ease;
+  margin-bottom: var(--espaciado-pequeno);
+}
+
+.botonesCategorias:hover {
+  background-color: var(--color-primario);
+  color: var(--color-texto);
+  transform: translateY(-2px);
+}
+
+#lista {
+  width: 100%;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaciado);
+}
+
+.categoriaSeleccionada {
+  cursor: pointer;
+  list-style: none;
+  width: 15rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-fondo-principal);
+  border-radius: var(--borde-radio);
+  font-family: var(--fuente-especial);
+  font-size: var(--texto-muy-grande);
+  box-shadow: var(--sombra-pequena);
+  transition: all 0.3s ease;
+  border: 1px solid var(--color-gris-oscuro);
+}
+
+.enlace {
+  text-decoration: none;
+  color: var(--color-primario);
+}
+
+.categoriaSeleccionada:hover {
+  transform: translateY(-5px);
+  background-color: var(--color-primario);
+  border-color: var(--color-primario);
+}
+
+.categoriaSeleccionada:hover .enlace {
+  color: var(--color-texto);
+}
+
+#categoriaSeleccionada {
+  padding: 0.75rem;
+  margin-bottom: var(--espaciado-pequeno);
+  border: 1px solid var(--color-gris-oscuro);
+  border-radius: var(--borde-radio);
+  font-size: var(--texto-base);
+  font-family: var(--fuente-texto);
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+#categoriaSeleccionada:hover {
+  border-color: var(--color-primario);
+}

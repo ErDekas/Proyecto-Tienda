@@ -1,0 +1,15 @@
+<IfModule mod_rewrite.c>
+#Desactivamos las Multiviews, es decir,
+# que si no encuentra unn archivo en la carpeta public/ que redireccione
+# automaticamente al index.php
+Options -Multiviews
+#Activar el motor de reescritura
+RewriteEngine on
+# Con RewriteBase se define desde que directorio se deve acceder a la RewriteRule
+#RewriteBase /Tienda/public
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+
+RewriteRule ^ index.php [QSA,L]
+</IfModule>

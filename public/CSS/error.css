@@ -1,0 +1,115 @@
+/* Estilos para mensajes y páginas de error */
+.error-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--espaciado);
+  background-color: var(--color-fondo-principal);
+  border-radius: var(--borde-radio);
+  box-shadow: var(--sombra-mediana);
+  border: 1px solid var(--color-gris-oscuro);
+}
+
+.error-titulo {
+  font-family: var(--fuente-especial);
+  font-size: var(--texto-muy-grande);
+  color: var(--color-resaltar);
+  text-align: center;
+  margin-bottom: var(--espaciado);
+}
+
+.error-mensaje {
+  font-family: var(--fuente-texto);
+  font-size: var(--texto-grande);
+  color: var(--color-texto);
+  text-align: center;
+  margin-bottom: var(--espaciado);
+}
+
+.error-detalles {
+  background-color: var(--color-fondo);
+  padding: var(--espaciado);
+  border-radius: var(--borde-radio);
+  margin: var(--espaciado) 0;
+}
+
+.error-codigo {
+  font-family: var(--fuente-especial);
+  font-size: var(--texto-grande);
+  color: var(--color-secundario);
+  text-align: center;
+  margin-bottom: var(--espaciado-pequeno);
+}
+
+.error-accion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaciado);
+}
+
+.error-boton {
+  background-color: var(--color-primario);
+  color: var(--color-texto);
+  padding: var(--espaciado-pequeno) var(--espaciado);
+  border: none;
+  border-radius: var(--borde-radio);
+  font-family: var(--fuente-titulos);
+  font-size: var(--texto-base);
+  cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.error-boton:hover {
+  background-color: var(--color-secundario);
+  transform: scale(1.05);
+}
+
+.error-link {
+  color: var(--color-secundario);
+  text-decoration: none;
+  font-size: var(--texto-base);
+  transition: color 0.3s ease;
+}
+
+.error-link:hover {
+  color: var(--color-primario);
+}
+
+/* Manteniendo los estilos existentes */
+.menu,
+.error {
+  margin-left: 1.5rem;
+  padding: 1.5rem;
+}
+
+.hr {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* Media queries para dispositivos móviles */
+@media (max-width: 768px) {
+  .error-container {
+    padding: var(--espaciado-pequeno);
+    margin: var(--espaciado-pequeno);
+  }
+
+  .error-titulo {
+    font-size: var(--texto-grande);
+  }
+
+  .error-mensaje {
+    font-size: var(--texto-base);
+  }
+
+  .error-detalles {
+    padding: var(--espaciado-pequeno);
+  }
+
+  .error-boton {
+    width: 100%;
+    max-width: 300px;
+  }
+}

@@ -5,6 +5,7 @@ namespace Lib;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
+use Lib\PDF;
 
 class Mail {
     
@@ -22,17 +23,20 @@ class Mail {
             $mail->SMTPSecure = $_ENV['SMTPSECURE'];
             $mail->Port = $_ENV['SMTP_PORT'];
 
-
-
-
             $mail->setFrom($_ENV['SMTP_USERNAME'], "Deka's Shop");
             $mail->addAddress($_SESSION['usuario']['email'], $_SESSION['usuario']['nombre']); 
 
             $mail->Subject = 'Datos del pedido';
-            
-            $contenido = $this->generarMail($pedido);
+
+            // Generar contenido del correo con PDF
+            $pdf = new PDF();
+            $pdfPath = $pdf->generarPedidoPDF($pedido);
+
             $mail->isHTML(true);
-            $mail->Body = $contenido;
+            $mail->Body = "<p>Estimado {$_SESSION['usuario']['nombre']},</p><p>Adjuntamos el PDF con los detalles de su pedido.</p>";
+
+            // Adjuntar el PDF generado
+            $mail->addAttachment($pdfPath);
 
             // Enviar el correo
             $mail->send();
@@ -44,33 +48,4 @@ class Mail {
         }
 
     }
-
-    // Método para generar el cuerpo del correo a enviar
-    function generarMail(array $order){
-        
-
-        $contenido = "<h1>Pedido realizado a nombre de " . $_SESSION['usuario']['nombre'] .  "</h1>";
-        $contenido .= "<h1>Datos de su pedido con el numero " .  $order[0]['id'] .":</h1>";
-        $contenido .= "<table border='1'>";
-        $contenido .= "<tr><th>Producto</th><th>Cantidad</th><th>Precio</th></tr>";
-
-        // Recorremos el carrito y agregamos los productos al cuerpo del correo
-        foreach ($_SESSION['carrito'] as $product) {
-            $contenido .= "<tr>
-                            <td>" . $product['nombre'] . "</td>
-                            <td>" . $product['cantidad'] . "</td>
-                            <td>" . $product['precio'] . "</td>
-                        </tr>";
-        }
-
-        $total = $_SESSION['costeTotal'];
-        $contenido .= "</table>";
-        $contenido .= "<p><strong>Estado: " . $order[0]['estado'] ." </strong></p>";
-        $contenido .= "<p><strong>Total: {$total}</strong></p>";
-
-        return $contenido;
-
-    }
-
-
 }

@@ -18,9 +18,6 @@
                     <?= htmlspecialchars($categoria["nombre"]) ?>
                 </li>
             </a>
-            <li class="categoriaLista">
-                <?= htmlspecialchars($categoria["nombre"]) ?>
-            </li>
         <?php endforeach; ?>
     </ul>
 

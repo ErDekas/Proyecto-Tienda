@@ -150,7 +150,7 @@ class ProductoController
                     'productos/actualizar',
                     [
                         'categorias' => $categoriasServicio,
-                        'productos' => $productos // Añadir productos aquí
+                        'productos' => $productos
                     ]
                 );
             }
@@ -261,8 +261,6 @@ class ProductoController
     public function informacionProducto(int $id)
     {
         $details = $this->productosServicio->informacionProducto($id);
-
-        //die(var_dump(($details)));
 
         $this->pages->render(
             'productos/productoInfo',

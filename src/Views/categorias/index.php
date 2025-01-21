@@ -13,17 +13,14 @@
     <ul id="lista">
         <?php foreach ($categorias as $categoria): ?>
 
-            <?php if ($admin): ?>
-                <a class="enlace" href="<?= BASE_URL ?>productos/index/<?= htmlspecialchars($categoria["id"]) ?>">
-                    <li class="categoriaLista">
-                        <?= htmlspecialchars($categoria["nombre"]) ?>
-                    </li>
-                </a>
-            <?php elseif(!$admin): ?>
+            <a class="enlace" href="<?= BASE_URL ?>productos/index/<?= htmlspecialchars($categoria["id"]) ?>">
                 <li class="categoriaLista">
-                        <?= htmlspecialchars($categoria["nombre"]) ?>
-                    </li>
-            <?php endif?>
+                    <?= htmlspecialchars($categoria["nombre"]) ?>
+                </li>
+            </a>
+            <li class="categoriaLista">
+                <?= htmlspecialchars($categoria["nombre"]) ?>
+            </li>
         <?php endforeach; ?>
     </ul>
 

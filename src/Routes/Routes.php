@@ -34,8 +34,8 @@ class Routes {
             (new CategoriaController())->eliminarCategorias();
         });
 
-        Router::add('GET','/categorias/ProductosPorCategory/:id',function(int $id){
-            (new CategoriaController())->ProductosPorCategoria($id);
+        Router::add('GET','/productos/index/:id',function(int $id){
+            (new CategoriaController())->productosPorCategoria($id);
         });
 
         Router::add('POST', '/categorias/crear', function() {

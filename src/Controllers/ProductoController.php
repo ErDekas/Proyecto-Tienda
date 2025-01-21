@@ -2,6 +2,7 @@
 
 namespace Controllers;
 
+use Lib\BaseDatos;
 use Services\ProductosServicio;
 use Services\CategoriaServicio;
 use Lib\Pages;
@@ -44,17 +45,21 @@ class ProductoController
 
 
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            unset($_SESSION['guardado']);
+            if (!$this->utils->isAdmin()) {
+                header("Location" . BASE_URL . "");
+            } else {
+                unset($_SESSION['guardado']);
 
-            $categoriasServicio = $this->categoriasServicio->obtenerCategorias();
+                $categoriasServicio = $this->categoriasServicio->obtenerCategorias();
 
 
-            $this->pages->render(
-                'productos/crear',
-                [
-                    'categorias' => $categoriasServicio
-                ]
-            );
+                $this->pages->render(
+                    'productos/crear',
+                    [
+                        'categorias' => $categoriasServicio
+                    ]
+                );
+            }
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $imagenNombre = null;
             $rutaCarpeta = '../../public/IMG';
@@ -132,19 +137,23 @@ class ProductoController
     public function actualizarProducto()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            unset($_SESSION['errores']);
-            unset($_SESSION['actualizado']);
+            if (!$this->utils->isAdmin()) {
+                header("Location" . BASE_URL . "");
+            } else {
+                unset($_SESSION['errores']);
+                unset($_SESSION['actualizado']);
 
-            $categoriasServicio = $this->categoriasServicio->obtenerCategorias();
-            $productos = $this->productosServicio->obtenerProductos(); // Asume que existe este método
+                $categoriasServicio = $this->categoriasServicio->obtenerCategorias();
+                $productos = $this->productosServicio->obtenerProductos(); // Asume que existe este método
 
-            $this->pages->render(
-                'productos/actualizar',
-                [
-                    'categorias' => $categoriasServicio,
-                    'productos' => $productos // Añadir productos aquí
-                ]
-            );
+                $this->pages->render(
+                    'productos/actualizar',
+                    [
+                        'categorias' => $categoriasServicio,
+                        'productos' => $productos // Añadir productos aquí
+                    ]
+                );
+            }
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $imagenNombre = null;
             $rutaCarpeta = '../../public/IMG';
@@ -221,14 +230,18 @@ class ProductoController
     public function borrarProducto()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            unset($_SESSION['errores']);
-            unset($_SESSION['borrado']);
+            if (!$this->utils->isAdmin()) {
+                header("Location" . BASE_URL . "");
+            } else {
+                unset($_SESSION['errores']);
+                unset($_SESSION['borrado']);
 
-            $productos = $this->productosServicio->obtenerProductos(); // Método para obtener productos
-            $this->pages->render('productos/borrar', [
-                'productos' => $productos,
-                'errores' => $errores ?? null,
-            ]);
+                $productos = $this->productosServicio->obtenerProductos(); // Método para obtener productos
+                $this->pages->render('productos/borrar', [
+                    'productos' => $productos,
+                    'errores' => $errores ?? null,
+                ]);
+            }
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $productoId = $_POST['productoSeleccionado'];
 

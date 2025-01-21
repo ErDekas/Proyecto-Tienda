@@ -46,9 +46,13 @@ class CategoriaController
     public function insertarCategoria(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $this->pages->render('categorias/crear');
-            unset($_SESSION['errores']);
-            unset($_SESSION['creado']);
+            if (!$this->utils->isAdmin()) {
+                header("Location: " . BASE_URL . "");
+            } else {
+                $this->pages->render('categorias/crear');
+                unset($_SESSION['errores']);
+                unset($_SESSION['creado']);
+            }
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $datos = $_POST['categorias'];
 
@@ -94,17 +98,21 @@ class CategoriaController
     public function actualizarCategoria(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            unset($_SESSION['errores']);
-            unset($_SESSION['actualizado']);
+            if (!$this->utils->isAdmin()) {
+                header("Location: " . BASE_URL . "");
+            } else {
+                unset($_SESSION['errores']);
+                unset($_SESSION['actualizado']);
 
-            $categorias = $this->categoriaServicio->obtenerCategorias();
+                $categorias = $this->categoriaServicio->obtenerCategorias();
 
-            $this->pages->render(
-                'categorias/actualizar',
-                [
-                    'categorias' => $categorias
-                ]
-            );
+                $this->pages->render(
+                    'categorias/actualizar',
+                    [
+                        'categorias' => $categorias
+                    ]
+                );
+            }
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($_POST['categorias']) {
                 $datos = $_POST['categorias'];
@@ -157,17 +165,21 @@ class CategoriaController
     public function eliminarCategorias(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            unset($_SESSION['errores']);
-            unset($_SESSION['borrado']);
+            if (!$this->utils->isAdmin()) {
+                header("Location" . BASE_URL . "");
+            } else {
+                unset($_SESSION['errores']);
+                unset($_SESSION['borrado']);
 
-            $categorias = $this->categoriaServicio->obtenerCategorias();
+                $categorias = $this->categoriaServicio->obtenerCategorias();
 
-            $this->pages->render(
-                '/categorias/borrar',
-                [
-                    'categorias' => $categorias
-                ]
-            );
+                $this->pages->render(
+                    '/categorias/borrar',
+                    [
+                        'categorias' => $categorias
+                    ]
+                );
+            }
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($_POST['categorias']) {
                 $datos = $_POST['categorias'];

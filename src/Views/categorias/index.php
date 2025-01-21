@@ -14,7 +14,7 @@
         <?php foreach ($categorias as $categoria): ?>
 
             <?php if ($admin): ?>
-                <a class="enlace" href="<?= BASE_URL ?>categorias/productoPorCategoria/<?= htmlspecialchars($categoria["id"]) ?>">
+                <a class="enlace" href="<?= BASE_URL ?>productos/index/<?= htmlspecialchars($categoria["id"]) ?>">
                     <li class="categoriaLista">
                         <?= htmlspecialchars($categoria["nombre"]) ?>
                     </li>

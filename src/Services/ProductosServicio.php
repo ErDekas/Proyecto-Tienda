@@ -91,7 +91,6 @@ class ProductosServicio
     public function obtenerProductosPorCategoria(int $id): array
     {
         try {
-            $productoRepository = new Productos();
             return $this->productosRepository->obtenerProductosPorCategoria($id);
         } catch (Exception $ex) {
             echo $ex->getMessage();

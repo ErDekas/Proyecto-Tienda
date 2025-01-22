@@ -2,6 +2,7 @@
 
 namespace Models;
 
+use DateTime;
 use Lib\BaseDatos;
 use Lib\Validar;
 
@@ -16,7 +17,10 @@ class Usuario
         private string $apellidos = "",
         private string $correo = "",
         private string $password = "",
-        private string $rol = ""
+        private string $rol = "",
+        private bool $confirmado = FALSE,
+        private string $token = "",
+        private string $token_exp = "" 
     ) {
         $this->conexion = new BaseDatos();
     }
@@ -52,6 +56,21 @@ class Usuario
         return $this->rol;
     }
 
+    public function getConfirmado(): bool
+    {
+        return $this->confirmado;
+    }
+    
+    public function getToken(): string
+    {
+        return $this->token;
+    }
+    
+    public function getToken_exp(): string
+    {
+        return $this->token_exp;
+    }
+
     // Metodos Setters
     public function setId(?int $id): void
     {
@@ -81,6 +100,21 @@ class Usuario
     public function setRol(string $rol): void
     {
         $this->rol = $rol;
+    }
+
+    public function setConfirmado(bool $confirmado): void
+    {
+        $this->confirmado = $confirmado;
+    }
+
+    public function setToken(string $token): void
+    {
+        $this->token = $token;
+    }
+
+    public function setToken_exp(string $token_exp): void
+    {
+        $this->token_exp = $token_exp;
     }
 
     // Métodos de validación
@@ -144,6 +178,10 @@ class Usuario
             $errores['password'] = "El campo contraseña es obligatorio.";
         }
 
+        if($this->confirmado == FALSE) {
+            $errores['confirmado'] = "Debe confirmar su cuenta accediendo al enlace mandado a su correo.";
+        }
+
         return $errores;
     }
 
@@ -155,7 +193,8 @@ class Usuario
             $data['apellidos'] ?? "",
             $data['email'] ?? "",
             $data['password'] ?? "",
-            $data['rol'] ?? 'user' ?? 'admin'
+            $data['rol'] ?? 'user' ?? 'admin',
+            $data['confirmado'] ?? FALSE ?? TRUE
         );
     }
 }

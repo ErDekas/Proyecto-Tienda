@@ -91,4 +91,4 @@ CREATE TABLE cart_items (
 /* La contraseña es esta: Admin.42 */
 INSERT INTO usuarios (nombre, apellidos, email, password, rol, confirmado, token, token_exp)
 VALUES 
-('Admin', '42', 'admini@gmail.com', '$2y$10$tWdWmBNDtceabU5UQ2y3xOkprvU8OVrL9wuCOPYoGG0FOtaEwnU42', 'admin', 1, NULL, NULL);
+('Admin', '42', 'admin@gmail.com', '$2y$10$tWdWmBNDtceabU5UQ2y3xOkprvU8OVrL9wuCOPYoGG0FOtaEwnU42', 'admin', 1, NULL, NULL);

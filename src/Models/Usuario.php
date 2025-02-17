@@ -184,7 +184,37 @@ class Usuario
 
         return $errores;
     }
+    public function validarDatosRecuperar(): array {
+        $errores = [];
 
+        if (empty($this->correo)) {
+            $errores['correo'] = "El campo correo es obligatorio.";
+        }
+
+        else if(!Validar::validarEmail($this->correo)){
+            $errores['correo'] = "El correo electrónico no es válido";
+        }
+
+        return $errores;
+    }
+
+    /**
+     * Metodo para validar los campos del formulario de cambio de contraseña
+     * @return array array con los errores en caso de que haya
+     */
+    public function validarDatosCambioContraseña(): array {
+        $errores = [];
+
+        if (empty($this->contrasena)) {
+            $errores['contrasena'] = "El campo contraseña es obligatorio.";
+        }
+
+        else if(!Validar::validarPassword($this->password)){
+            $errores['contrasena'] = "La contraseña no es válida";
+        }
+
+        return $errores;
+    }
     public static function fromArray(array $data): Usuario
     {
         return new Usuario(

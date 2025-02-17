@@ -10,6 +10,7 @@ use Models\LineaDePedido;
 use Services\ProductosServicio;
 use Services\PedidoServicio;
 use Services\PaypalServicio;
+use Controllers\CartController;
 use Services\LineaDePedidoServicio;
 
 class PedidoController
@@ -21,6 +22,7 @@ class PedidoController
     private LineaDePedidoServicio $lineaDePedidoServicio;
     private PaypalServicio $paypalService;
     private ProductosServicio $productosServicio;
+    private CartController $cartController;
 
     public function __construct()
     {
@@ -31,6 +33,7 @@ class PedidoController
         $this->paypalService = new PaypalServicio();
         $this->lineaDePedidoServicio = new LineaDePedidoServicio();
         $this->productosServicio = new ProductosServicio();
+        $this->cartController = new CartController();
     }
 
     // Método para comprobar login
@@ -70,14 +73,25 @@ class PedidoController
                     'provincia' => $pedido->getProvincia(),
                     'localidad' => $pedido->getLocalidad(),
                     'direccion' => $pedido->getDireccion(),
-                    'coste' => $_SESSION['costeTotal'],
+                    'coste' => $_SESSION['totalCost'],
                     'estado' => 'confirmado',
                     'fecha' => (new \DateTime())->format('Y-m-d'),
                     'hora' => (new \DateTime())->format('H:i:s'),
                 ];
-
+                $totalAmount = $_SESSION['totalCost']; 
+                $currency = 'EUR'; 
+                $description = 'Pedido en Fake Web Storage'; 
+                $returnUrl = BASE_URL;
+                $cancelUrl = BASE_URL . 'order/paymentCancel'; 
+                $paypalUrl = $this->paypalService->createPayment($totalAmount, $currency, $description, $returnUrl, $cancelUrl);
+                if ($paypalUrl) {
+                    header("Location: " . $paypalUrl);
+                } else {
+                    $errores['payment'] = 'No se pudo procesar el pago. Intenta nuevamente.';
+                    $this->pages->render('Order/formOrder', ["errores" => $errores]);
+                    return; 
+                }
                 $resultado = $this->pedidoServicio->guardarPedido($datos_pedido);
-
                 if ($resultado === true) {
                     $stock = $this->productosServicio->actualizarStockProducto();
                     if ($stock === true) {

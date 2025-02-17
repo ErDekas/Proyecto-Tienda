@@ -22,13 +22,13 @@ class PDF
     {
 
         // Validar que las variables de sesión necesarias existen
-        if (!isset($_SESSION['usuario']['nombre'], $_SESSION['carrito'], $_SESSION['costeTotal'])) {
+        if (!isset($_SESSION['usuario']['nombre'], $_SESSION['carrito'], $_SESSION['totalCost'])) {
             throw new Exception("Faltan datos en la sesión para generar el pedido.");
         }
 
         $usuarioNombre = $_SESSION['usuario']['nombre'];
         $carrito = $_SESSION['carrito'];
-        $costeTotal = $_SESSION['costeTotal'];
+        $costeTotal = $_SESSION['totalCost'];
 
         $this->tcpdf->AddPage();
 

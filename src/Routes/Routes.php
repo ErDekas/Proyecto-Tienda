@@ -42,16 +42,27 @@ class Routes
             (new UsuarioController())->iniciarSesion();
         });
 
+        Router::add('GET', '/usuarios/cerrarSesion', function () {
+            (new UsuarioController())->logout();
+        });
+
         Router::add('GET', '/usuarios/recuperar', function() {
-            (new UsuarioController())->recuperar();
+            (new UsuarioController())->password();
         });
 
         Router::add('POST', '/usuarios/recuperar', function() {
-            (new UsuarioController())->recuperar();
+            (new UsuarioController())->password();
+        });
+        Router::add('GET', '/usuarios/recuperarContra', function() {
+            if (isset($_GET['token'])) {
+                (new UsuarioController())->changePassword($_GET['token']);
+            }
         });
 
-        Router::add('GET', '/usuarios/cerrarSesion', function () {
-            (new UsuarioController())->logout();
+        Router::add('POST', '/usuarios/recuperarContra', function() {
+            if (isset($_GET['token'])) {
+                (new UsuarioController())->changePassword($_GET['token']);
+            }
         });
 
         // Protected routes (require authentication)

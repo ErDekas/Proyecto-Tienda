@@ -34,7 +34,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <p><a href="<?php echo BASE_URL; ?>">Volver a inicio</a></p>
 
-        <p><a href="<?= BASE_URL ?>usuarios/password">Recuperar Contraseña</a></p>
+        <p><a href="<?= BASE_URL ?>usuarios/recuperar">Recuperar Contraseña</a></p>
     </form>
 </div>
 <style>

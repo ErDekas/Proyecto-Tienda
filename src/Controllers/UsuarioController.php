@@ -6,6 +6,7 @@ use Lib\Pages;
 use Models\Usuario;
 use Services\UsuarioServicio;
 use Lib\Utils;
+use Lib\Security;
 use Lib\MailRecuperacion;
 
 class UsuarioController
@@ -16,6 +17,7 @@ class UsuarioController
     private UsuarioServicio $userService;
     private MailRecuperacion $mailer;
     private Utils $utils;
+    private Security $security;
 
     public function __construct()
     {
@@ -24,6 +26,8 @@ class UsuarioController
         $this->userService = new UsuarioServicio();
         $this->mailer = new MailRecuperacion();
         $this->utils = new Utils();
+        $this->security = new Security();
+
     }
 
     // Método para registrarse
@@ -192,68 +196,149 @@ class UsuarioController
         $this->pages->render("usuarios/datosUsuario", ["usuario" => $usuActual]);
     }
 
-    public function recuperar()
-    {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
+    public function password(){
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET'){
+
+            if($this->utils->isSession()){
+                header("Location: " . BASE_URL ."");
+            }
+            else{
+
+                $this->pages->render('usuarios/recuperar');
+            }
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            if ($this->utils->isSession()) {
-                header("Location: " . BASE_URL);
+        else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+          if($_POST['correo']){
+
+            $correo = $_POST['correo'] ?? '';
+            $user = new Usuario(null, "", "", $correo, "", "", false, "", "");
+            $user->sanitizarDatos();
+        
+            $errores = $user->validarDatosRecuperar();
+
+            if (!empty($errores)) {
+                $this->pages->render('usuarios/recuperar', ["errores" => $errores]);
+                return;
+            }
+
+            $userToRecover = $this->userService->obtenerCorreo($correo);
+
+            $data = [
+                'id' => $userToRecover['id'],
+                'correo' => $correo
+            ];
+    
+            $token = $this->security->generateToken($data);
+            $key = $this->security->secretKey();
+            $token_exp = $this->security->generateEmailToken();
+
+            $userData = [
+                'nombre' => '',
+                'apellidos' => '',
+                'correo' => $correo,
+                'contrasena' => '',
+                'rol' => '',
+                'confirmado' => '',
+                'token' => $token,
+                'token_exp' => $token_exp['expiration']
+            ];
+
+
+            $resultado = $this->userService->updateUserPassword($userData, $userToRecover['id']);
+
+            if ($resultado === true) {
+                $this->mailer->sendRecoveryEmail($userData['correo'], $userData['nombre'], $userData['token']);
+                $_SESSION['cambio'] = true;
+                $this->pages->render('usuarios/recuperar');
                 exit;
+            } 
+            else {
+                $errores['db'] = "Error al actualizar el token en el usuario: " . $resultado;
+                $this->pages->render('usuarios/recuperar', [
+                    "errores" => $errores,
+                    "user" => $this->user
+                ]);
             }
-            $this->pages->render('usuarios/recuperar');
+
+          }
+          else{
+            $_SESSION['falloDatos'] = 'fallo';
+          }
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $errores = [];
-            $email = $_POST['email'] ?? '';
+    }
 
-            if (empty($email)) {
-                $errores['email'] = "Por favor, introduce tu correo electrónico";
-            } else {
-                $email = filter_var($email, FILTER_SANITIZE_EMAIL);
 
-                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $errores['email'] = "El formato del correo electrónico no es válido";
-                } else {
-                    $usuario = $this->userService->obtenerCorreo($email);
-                    if (!$usuario) {
-                        $errores['email'] = "No existe ninguna cuenta asociada a este correo electrónico";
-                    }
-                }
+    /**
+     * Metodo que cambia la contraseña si el usuario lo ha olvidado
+     * @var string con el token del usuario que va cambiar la contraseña
+     * @return void
+     */
+    public function changePassword(string $token){
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET'){
+
+            if($this->utils->isSession()){
+                header("Location: " . BASE_URL ."");
             }
+            else{
 
-            if (empty($errores)) {
-                $token = bin2hex(random_bytes(32));
-                $expiry = date('Y-m-d H:i:s', strtotime('+24 hours'));
+                if (!$token) {
+                    $_SESSION['error'] = "Token no proporcionado";
+                    header("Location: " . BASE_URL);
+                    exit;
+                }
+                else{
+                    $this->pages->render('usuarios/recuperarContra', ["token" => $token]);
+                }
+                
+            }
+        }
 
+        else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+          if($_POST['data']){
+
+                $data = $_POST['data'];
+                $user = $this->user = Usuario::fromArray($data);
+                
+                // Sanitizar datos
+                $user->sanitizarDatos();
+
+                // Validar datos
+                $errores = $user->validarDatosCambioContraseña();
+
+                if($data['contrasena'] !== $data['confirmar_contrasena']){
+                    $errores['confirmar_contrasena'] = "Las contraseñas no son iguales";
+                }
+
+                if (!empty($errores)) {
+                    $this->pages->render('usuarios/recuperarContra', ["errores" => $errores]);
+                    return;
+                }
+
+                $contraseñaCambiar = $this->security->encryptPassw($user->getPassword());
+
+                //$token = $_GET['token'] ?? null;
                 try {
-                    $resultado = $this->userService->guardarTokenRecuperacion($email, $token, $expiry);
-
+                    $resultado = $this->userService->changePassword($token, $contraseñaCambiar);
                     if ($resultado) {
-                        $nombre = $usuario['nombre'] ?? 'Usuario'; // Nombre del usuario si está en la BD
-                        $emailEnviado = $this->mailer->sendRecoveryEmail($email, $nombre, $token);
-
-                        if ($emailEnviado) {
-                            $_SESSION['mensaje'] = "Se ha enviado un enlace de recuperación a tu correo electrónico";
-                        } else {
-                            $errores['email'] = "Hubo un problema al enviar el correo de recuperación.";
-                        }
-
-                        header("Location: " . BASE_URL . "usuarios/recuperar");
-                        exit;
+                        $_SESSION['mensaje'] = "Contraseña cambiada exitosamente. Ya puedes iniciar sesión.";
                     } else {
-                        $errores['db'] = "Error al procesar la solicitud de recuperación";
+                        $_SESSION['error'] = "No se pudo cambiar la contraseña. El token puede haber expirado o ser inválido.";
                     }
+                    header("Location: " . BASE_URL);
                 } catch (\Exception $e) {
-                    error_log("Error en recuperación de cuenta: " . $e->getMessage());
-                    $errores['sistema'] = "Ha ocurrido un error en el sistema, inténtelo más tarde";
+                    $_SESSION['error'] = "Error al cambiar la contraseña: " . $e->getMessage();
                 }
-            }
 
-            $this->pages->render('usuarios/recuperar', ["errores" => $errores]);
+          }
+          else{
+            $_SESSION['falloDatos'] = 'fallo';
+          }
         }
     }
 }

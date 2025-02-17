@@ -250,4 +250,70 @@ class UsuarioRepository
             }
         }
     }
+    public function updateUserPassword (Usuario $user, int $id): bool|string{
+        try {
+            $stmt = $this->conexion->prepare(
+                "UPDATE usuarios SET token = :token, token_exp = :token_exp  WHERE id = :id");
+
+            $stmt->bindValue(':token', $user->getToken(), PDO::PARAM_STR);
+            $stmt->bindValue(':token_exp', $user->getToken_Exp(), PDO::PARAM_STR);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+            $stmt->execute();
+            $stmt->closeCursor();
+            return true;
+        } 
+        catch (PDOException $e) {
+            return $e->getMessage();
+        }
+    }
+    public function cambiarContraseña(string $token, string $password): bool {
+        try {
+            $usuario = $this->obtenerUsuarioPorTokenContraseña($token);
+    
+            if (!$usuario || $this->esTokenExpiradoContraseña($usuario['token_exp'])) {
+                return false;
+            }
+    
+            return $this->actualizarContraseñaUsuario($usuario['id'], $token, $password);
+        } catch (PDOException $e) {
+            error_log("Error al confirmar la cuenta: " . $e->getMessage());
+            return false;
+        }
+    }
+    private function obtenerUsuarioPorTokenContraseña(string $token): ?array {
+        $stmt = $this->conexion->prepare(
+            "SELECT id, confirmado, token_exp FROM usuarios WHERE token = :token"
+        );
+        $stmt->bindValue(':token', $token, PDO::PARAM_STR);
+        $stmt->execute();
+    
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        $stmt->closeCursor();
+    
+        return $usuario ?: null;
+    }
+    private function esTokenExpiradoContraseña(string $tokenExp): bool {
+        $fechaExpiracion = new DateTime($tokenExp);
+        $fechaActual = new DateTime();
+    
+        return $fechaActual > $fechaExpiracion;
+    }
+    private function actualizarContraseñaUsuario(int $id, string $token, string $password): bool {
+        $stmt = $this->conexion->prepare(
+            "UPDATE usuarios SET password = :password, token = NULL, token_exp = NULL 
+             WHERE id = :id AND token = :token"
+        );
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->bindValue(':token', $token, PDO::PARAM_STR);
+        $stmt->bindValue(':password', $password, PDO::PARAM_STR);
+        $stmt->execute();
+    
+        $actualizado = $stmt->rowCount() > 0;
+    
+        $stmt->closeCursor();
+    
+        return $actualizado;
+    }
 }

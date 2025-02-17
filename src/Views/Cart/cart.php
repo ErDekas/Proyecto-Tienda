@@ -61,7 +61,7 @@
 
             <a href="<?= BASE_URL?>Cart/clearCart" class="botonesProductos">Vaciar carrito</a>
 
-            <a href="<?= BASE_URL?>pedido/formularioDePedido" class="botonesProductos">Confirmar pedido</a>
+            <a href="<?= BASE_URL?>pedido/autenticarPedido" class="botonesProductos">Confirmar pedido</a>
 
         </div>
 

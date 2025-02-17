@@ -122,4 +122,28 @@ class UsuarioServicio
             throw new \Exception('Error en el servicio al guardar el token de recuperación: ' . $e->getMessage());
         }
     }
+    public function updateUserPassword(array $userData, int $id): bool|string {
+        try {
+            $user = new Usuario(
+                null,
+                $userData['nombre'],
+                $userData['apellidos'],
+                $userData['correo'],
+                $userData['contrasena'],
+                $userData['rol'],
+                $userData['confirmado'],
+                $userData['token'],
+                $userData['token_exp']
+            );
+
+            return $this->repository->updateUserPassword($user, $id);
+        } 
+        catch (\Exception $e) {
+            error_log("Error al actualizar el usuario: " . $e->getMessage());
+            return false;
+        }
+    }
+    public function changePassword(string $token, string $password){
+        return $this->repository->cambiarContraseña($token, $password);
+    }
 }

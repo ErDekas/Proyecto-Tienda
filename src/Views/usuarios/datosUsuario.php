@@ -8,7 +8,6 @@
     <li><b>Correo:</b> <?php echo $_SESSION['usuario']["email"]; ?></li>
     
 </ul>
-<a href="<?= BASE_URL?>usuarios/actualizar">Actualizar mis datos</a>
 <a href="<?=  BASE_URL?>">Ir al inicio</a>
 
 </div>

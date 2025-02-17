@@ -25,7 +25,7 @@ class Security{
     }
 
     final public static function secretKey():string{
-        return $_ENV['SECRET_KEY'];
+        return $_ENV['JWT_SECRET'];
     }
 
     public function generateToken(array $userData): string {

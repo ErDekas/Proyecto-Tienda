@@ -26,7 +26,7 @@ class MailRecuperacion {
 
     public function sendRecoveryEmail(string $email, string $nombre, string $token): bool {
         try {
-            $resetUrl = BASE_URL . "usuario/reset-password?token=" . $token;
+            $resetUrl = BASE_URL . "usuarios/recuperarContra?token=" . $token;
             
             $this->mailer->addAddress($email, $nombre);
             $this->mailer->Subject = 'Recuperación de contraseña';

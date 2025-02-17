@@ -19,7 +19,7 @@
                     </td>
 
                     <td class="nameCartItem">
-                        <a href="<?= BASE_URL ?>productos/productoInfo/<?= htmlspecialchars($cart['id']) ?>"><?= htmlspecialchars($cart["nombre"]) ?></a>
+                        <a href="<?= BASE_URL ?>productos/productoInfo<?= htmlspecialchars($cart['id']) ?>"><?= htmlspecialchars($cart["nombre"]) ?></a>
                     </td>
                     <td class="priceCartItem">
                         <?= htmlspecialchars($cart["precio"]) ?> €
@@ -53,7 +53,7 @@
 
 <div class="inforCart">
 
-    <h2 id="totalPrice">Precio total: <?= $_SESSION['costeTotal'] ?> €</h2>
+    <h2 id="totalPrice">Precio total: <?= $_SESSION['precio'] ?> €</h2>
 
     <a href="<?= BASE_URL ?>carrito/limpiarCarrito" class="botonesProductos">Vaciar carrito</a>
 

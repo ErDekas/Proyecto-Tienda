@@ -168,6 +168,54 @@ class Productos
         return $errores;
     }
 
+    public function validarUpdate(): array
+    {
+        $errores = [];
+
+        if (empty($this->nombre)) {
+            $errores["nombre"] = "El campo 'nombre' es obligatorio";
+        }
+
+        if (empty($this->precio)) {
+            $errores["precio"] = "El campo 'precio' es obligatorio";
+        }
+
+        if (empty($this->stock)) {
+            $errores["stock"] = "El campo 'stock' es obligatorio";
+        }
+
+        // Validar nombre
+        if (!empty($this->nombre) && !Validar::validarString($this->nombre)) {
+            $errores['nombre'] = "El nombre no puede contener caracteres especiales";
+        }
+
+        // Validar descripcion
+        if (!empty($this->descripcion) && strlen($this->descripcion) > 65535) {
+            $errores['descripcion'] = "La longitud de la descripción supera la longitud máxima";
+        }
+
+        // Validar precio
+        if (!empty($this->precio) && !Validar::validarDouble($this->precio)) {
+            $errores['precio'] = "La precio debe ser un número decimal";
+        }
+
+        // Validar stock
+        if (!empty($this->stock) && !Validar::validarInt($this->stock)) {
+            $errores['stock'] = "El stock debe ser un número entero";
+        }
+
+        // Validar oferta
+        if (!empty($this->oferta) && !Validar::validarString($this->oferta) && strlen($this->oferta) > 2) {
+            $errores['oferta'] = "La oferta no puede contener caracteres especiales y no puede ser más largo de 2 caracteres";
+        }
+
+        // Validar imagen
+        if (!empty($this->imagen) && !Validar::validarString($this->imagen)) {
+            $errores['imagen'] = "El nombre de la imagen no puede contener caracteres especiales";
+        }
+
+        return $errores;
+    }
 
     // Sanitizaciones
     public function sanitizarDatos(): void

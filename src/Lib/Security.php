@@ -1,19 +1,31 @@
-<?php
+<?php 
 
 namespace Lib;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Exception;
 
-class Security {
+class Security{
     private string $jwt_secret;
     private string $jwt_algorithm;
     private int $token_expiration;
-
     public function __construct() {
         $this->jwt_secret = $_ENV['JWT_SECRET'] ?? 'your-secret-key';
         $this->jwt_algorithm = 'HS256';
         $this->token_expiration = 3600; // 1 hour in seconds
+    }
+
+    final public static function encryptPassw(string $passw){
+        return password_hash($passw, PASSWORD_BCRYPT, ['cost' => 10]);
+    }
+
+    final public static function validatePassw(string $passw, string $passwhash){
+        return password_verify($passw, $passwhash);
+    }
+
+    final public static function secretKey():string{
+        return $_ENV['SECRET_KEY'];
     }
 
     public function generateToken(array $userData): string {
@@ -31,19 +43,20 @@ class Security {
 
     public function verifyToken(string $token): ?object {
         try {
-            return JWT::decode($token, new Key($this->jwt_secret, $this->jwt_algorithm));
+            return JWT::decode($token, new Key(self::secretKey(), 'HS256'));
         } catch (\Exception $e) {
             return null;
         }
     }
 
     public function generateEmailToken(): array {
-        $token = bin2hex(random_bytes(32));
-        $expiration = date('Y-m-d H:i:s', strtotime('+24 hours'));
-        
+        $token = bin2hex(random_bytes(64));
+        $expiration = date('Y-m-d H:i:s', strtotime('+1 hours'));
+
         return [
             'token' => $token,
             'expiration' => $expiration
         ];
     }
+
 }

@@ -12,12 +12,13 @@
 
     <ul id="lista">
         <?php foreach ($categorias as $categoria): ?>
-
-            <a class="enlace" href="<?= BASE_URL ?>productos/index/<?= htmlspecialchars($categoria["id"]) ?>">
-                <li class="categoriaLista">
-                    <?= htmlspecialchars($categoria["nombre"]) ?>
-                </li>
-            </a>
+            <?php if ($admin || $categoria["nombre"] !== "Sin Existencias"): ?>
+                <a class="enlace" href="<?= BASE_URL ?>productos/index/<?= htmlspecialchars($categoria["id"]) ?>">
+                    <li class="categoriaLista">
+                        <?= htmlspecialchars($categoria["nombre"]) ?>
+                    </li>
+                </a>
+            <?php endif; ?>
         <?php endforeach; ?>
     </ul>
 

@@ -9,6 +9,7 @@ use Models\Pedido;
 use Models\LineaDePedido;
 use Services\ProductosServicio;
 use Services\PedidoServicio;
+use Services\PaypalServicio;
 use Services\LineaDePedidoServicio;
 
 class PedidoController
@@ -18,6 +19,7 @@ class PedidoController
     private Mail $mail;
     private PedidoServicio $pedidoServicio;
     private LineaDePedidoServicio $lineaDePedidoServicio;
+    private PaypalServicio $paypalService;
     private ProductosServicio $productosServicio;
 
     public function __construct()
@@ -26,6 +28,7 @@ class PedidoController
         $this->utils = new Utils();
         $this->mail = new Mail();
         $this->pedidoServicio = new PedidoServicio();
+        $this->paypalService = new PaypalServicio();
         $this->lineaDePedidoServicio = new LineaDePedidoServicio();
         $this->productosServicio = new ProductosServicio();
     }
@@ -125,5 +128,58 @@ class PedidoController
             'pedidos' => $pedidos,
             'lineaDePedidos' => $lineaDePedidos,
         ]);
+    }
+    
+    public function verTodosLosPedidos()
+    {
+        $pedidos = $this->pedidoServicio->verTodosLosPedidos();
+        $lineaDePedidos = [];
+        $productos = [];
+
+        foreach ($pedidos as $pedido) {
+            $lineaDePedido = $this->lineaDePedidoServicio->verLineasDePedido($pedido['id']);
+
+            foreach ($lineaDePedido as $linea) {
+                if(!empty($linea['producto_nombre'])) {
+                    $productos[$linea['producto_id']] = $linea['producto_nombre'];
+                }
+            }
+
+            $lineaDePedidos[] = $lineaDePedido;
+        }
+
+        $_SESSION['productosPedidos'] = $productos;
+        $this->pages->render('pedido/pedidos', [
+            'pedidos' => $pedidos,
+            'lineaDePedidos' => $lineaDePedidos,
+        ]);
+    }
+
+     /**
+     * Metodo que redirije si se cancela el pago
+     * @return void
+     */
+    public function paymentCancel() {
+        $this->pages->render('Order/paymentCancel');
+    }
+    
+    /**
+     * Metodo que redirije si el pago ha sido exitoso
+     * @return void
+     */
+    public function paymentSuccess() {
+        $paymentId = $_GET['paymentId'];
+        $payerId = $_GET['PayerID'];
+    
+        // Ejecuta el pago
+        $paymentExecuted = $this->paypalService->executePayment($paymentId, $payerId);
+    
+        if ($paymentExecuted) {
+            return true;
+        } else {
+            // Si el pago no fue exitoso
+            $errores['payment'] = 'El pago no se completó correctamente.';
+            $this->pages->render('Order/formOrder', ["errores" => $errores]);
+        }
     }
 }

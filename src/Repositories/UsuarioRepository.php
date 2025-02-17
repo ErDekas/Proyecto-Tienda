@@ -136,34 +136,118 @@ class UsuarioRepository
     }
 
     public function regenerarTokenConfirmacion(string $email): bool
-{
-    try {
-        // Generar nuevo token y fecha de expiración
-        $nuevoToken = bin2hex(random_bytes(32));
-        $expiracion = (new DateTime())->modify('+24 hours')->format('Y-m-d H:i:s');
-        
-        $stmt = $this->conexion->prepare(
-            "UPDATE usuarios 
+    {
+        try {
+            // Generar nuevo token y fecha de expiración
+            $nuevoToken = bin2hex(random_bytes(32));
+            $expiracion = (new DateTime())->modify('+24 hours')->format('Y-m-d H:i:s');
+
+            $stmt = $this->conexion->prepare(
+                "UPDATE usuarios 
              SET token = :token, 
                  token_exp = :expiracion 
              WHERE email = :email 
              AND confirmado = 0"
-        );
-        
-        $stmt->bindValue(':token', $nuevoToken, PDO::PARAM_STR);
-        $stmt->bindValue(':expiracion', $expiracion, PDO::PARAM_STR);
-        $stmt->bindValue(':email', $email, PDO::PARAM_STR);
-        $stmt->execute();
-        
-        return $stmt->rowCount() > 0;
-        
-    } catch (PDOException $e) {
-        error_log("Error al regenerar el token: " . $e->getMessage());
-        return false;
-    } finally {
-        if(isset($stmt)) {
-            $stmt->closeCursor();
+            );
+
+            $stmt->bindValue(':token', $nuevoToken, PDO::PARAM_STR);
+            $stmt->bindValue(':expiracion', $expiracion, PDO::PARAM_STR);
+            $stmt->bindValue(':email', $email, PDO::PARAM_STR);
+            $stmt->execute();
+
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            error_log("Error al regenerar el token: " . $e->getMessage());
+            return false;
+        } finally {
+            if (isset($stmt)) {
+                $stmt->closeCursor();
+            }
         }
     }
-}
+    public function actualizarUsuario(Usuario $usuario): bool
+    {
+        try {
+            $stmt = $this->conexion->prepare(
+                "UPDATE usuarios 
+                 SET nombre = :nombre, 
+                     apellidos = :apellidos, 
+                     email = :correo
+                 WHERE id = :id"
+            );
+
+            $stmt->bindValue(':nombre', $usuario->getNombre(), PDO::PARAM_STR);
+            $stmt->bindValue(':apellidos', $usuario->getApellidos(), PDO::PARAM_STR);
+            $stmt->bindValue(':correo', $usuario->getCorreo(), PDO::PARAM_STR);
+            $stmt->bindValue(':id', $usuario->getId(), PDO::PARAM_INT);
+
+            $stmt->execute();
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            error_log("Error al editar los datos del usuario: " . $e->getMessage());
+            return false;
+        } finally {
+            if (isset($stmt)) {
+                $stmt->closeCursor();
+            }
+        }
+    }
+    public function obtenerUsuarioPorId(int $id): ?Usuario
+    {
+        try {
+            $stmt = $this->conexion->prepare("SELECT * FROM usuarios WHERE id = :id");
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $usuarioData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($usuarioData) {
+                $usuario = new Usuario();
+                $usuario->setId($usuarioData['id']);
+                $usuario->setNombre($usuarioData['nombre']);
+                $usuario->setApellidos($usuarioData['apellidos']);
+                $usuario->setCorreo($usuarioData['email']);
+                $usuario->setPassword($usuarioData['password']);
+                $usuario->setRol($usuarioData['rol']);
+                $usuario->setConfirmado($usuarioData['confirmado']);
+                $usuario->setToken($usuarioData['token']);
+                $usuario->setToken_Exp($usuarioData['token_exp']);
+                return $usuario;
+            }
+
+            return null;
+        } catch (PDOException $e) {
+            error_log("Error al obtener el usuario por ID: " . $e->getMessage());
+            return null;
+        } finally {
+            if (isset($stmt)) {
+                $stmt->closeCursor();
+            }
+        }
+    }
+
+    public function guardarTokenRecuperacion(string $email, string $token, string $expiry): bool
+    {
+        try {
+            $stmt = $this->conexion->prepare(
+                "UPDATE usuarios 
+             SET token_recuperacion = :token, token_expiracion = :expiry 
+             WHERE email = :email"
+            );
+
+            $stmt->bindValue(':token', $token, PDO::PARAM_STR);
+            $stmt->bindValue(':expiry', $expiry, PDO::PARAM_STR);
+            $stmt->bindValue(':email', $email, PDO::PARAM_STR);
+            $stmt->execute();
+
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            error_log("Error al guardar el token de recuperación: " . $e->getMessage());
+            return false;
+        } finally {
+            if (isset($stmt)) {
+                $stmt->closeCursor();
+            }
+        }
+    }
 }

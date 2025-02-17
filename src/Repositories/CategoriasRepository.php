@@ -84,29 +84,25 @@ class CategoriasRepository
             $checkStmt->execute();
 
             if ($checkStmt->fetchColumn() > 0) {
-                // Buscar la siguiente categoría disponible
-                $nextCategoryStmt = $this->conexion->prepare(
-                    "SELECT id FROM categorias 
-                WHERE id != :current_id 
-                ORDER BY id ASC 
-                LIMIT 1"
+                // Buscar la categoría "Sin existencias"
+                $sinExistenciasStmt = $this->conexion->prepare(
+                    "SELECT id FROM categorias WHERE nombre = 'Sin existencias' LIMIT 1"
                 );
-                $nextCategoryStmt->bindValue(":current_id", $categoria->getId(), PDO::PARAM_INT);
-                $nextCategoryStmt->execute();
+                $sinExistenciasStmt->execute();
 
-                $nextCategoryId = $nextCategoryStmt->fetchColumn();
+                $sinExistenciasId = $sinExistenciasStmt->fetchColumn();
 
-                if (!$nextCategoryId) {
-                    throw new Exception("No hay otras categorías disponibles para mover los productos.");
+                if (!$sinExistenciasId) {
+                    throw new Exception("No existe la categoría 'Sin existencias'.");
                 }
 
-                // Actualizar los productos a la nueva categoría
+                // Actualizar los productos a la categoría "Sin existencias"
                 $updateStmt = $this->conexion->prepare(
                     "UPDATE productos 
-                SET categoria_id = :new_id 
-                WHERE categoria_id = :old_id"
+                    SET categoria_id = :new_id 
+                    WHERE categoria_id = :old_id"
                 );
-                $updateStmt->bindValue(":new_id", $nextCategoryId, PDO::PARAM_INT);
+                $updateStmt->bindValue(":new_id", $sinExistenciasId, PDO::PARAM_INT);
                 $updateStmt->bindValue(":old_id", $categoria->getId(), PDO::PARAM_INT);
                 $updateStmt->execute();
             }
@@ -119,6 +115,10 @@ class CategoriasRepository
             $this->conexion->commit();
             return true;
         } catch (PDOException $ex) {
+            $this->conexion->deshacer();
+            echo $ex->getMessage();
+            return false;
+        } catch (Exception $ex) {
             $this->conexion->deshacer();
             echo $ex->getMessage();
             return false;

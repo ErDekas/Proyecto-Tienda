@@ -78,4 +78,17 @@ class PedidoRepository
             return [];
         }
     }
+
+    // Método para ver todos los pedidos
+    public function verTodosLosPedidos(): array
+    {
+        try {
+            $stmt = $this->conexion->prepare("SELECT * FROM pedidos");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            return [];
+        }
+    }
 }

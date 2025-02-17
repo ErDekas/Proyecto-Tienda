@@ -1,12 +1,14 @@
 <?php
-
 namespace Lib;
-
 use Controllers\ErrorController;
 use Lib\Security;
 
-class Router
-{
+/**
+ * Clase que redirige a las diferente rutas del proyecto 
+ * correctamente pudiendole pasarle parametros por la url
+ */
+class Router {
+
     private static array $routes = [];
     private static array $protectedRoutes = [];
     private static Security $security;
@@ -16,40 +18,74 @@ class Router
         self::$security = new Security();
     }
 
-    public static function add(string $method, string $action, callable $controller, bool $protected = false): void
-    {
-        $action = trim($action, '/');
-        self::$routes[$method][$action] = $controller;
-        
-        if ($protected) {
-            self::$protectedRoutes[$method][$action] = true;
-        }
+    /**
+     * Metodo que asigna las rutas estando ya protegidas
+     * @return void
+     */
+    public static function add(string $method, string $action, callable $controller, bool $protected = false): void{
+        self::assignRoute($method, trim($action, '/'), $controller, $protected);
     }
 
-    private static function validateToken(): bool
-    {
-        $headers = getallheaders();
-        $token = $headers['Authorization'] ?? $_SESSION['token'] ?? null;
+    /**
+     * Metodo para crear la rutas protegidas, pasandole el metodo
+     * la accion, el controlador y si esta protegido o no
+     * @return void
+     */
+    private static function assignRoute(string $method, string $action, callable $controller, bool $protected): void{
+        if (!isset(self::$routes[$method])) {
+            self::$routes[$method] = [];
+        }
+
+        self::$routes[$method][$action] = $controller;
+
+        if ($protected) {
+            if (!isset(self::$protectedRoutes[$method])) {
+                self::$protectedRoutes[$method] = [];
+            }
+
+            self::$protectedRoutes[$method][$action] = true;
+        }
+    }   
+
+    /**
+     * Metodo para validar el token que recibes por url 
+     * desde el enlace del correo
+     * @return bool
+     */
+    private static function validateToken(): bool{
+        $token = self::extractToken();
 
         if (!$token) {
             return false;
         }
 
-        if (strpos($token, 'Bearer ') === 0) {
-            $token = substr($token, 7);
+        return self::$security->validaToken($token) !== null;
+    }
+    
+    /**
+     * Metodo que extrae el token para validarlo
+     * @return string
+     */
+    private static function extractToken(): ?string{
+        $headers = getallheaders();
+        $token = $headers['Authorization'] ?? $_SESSION['token'] ?? null;
+
+        if ($token && strpos($token, 'Bearer ') === 0) {
+            return substr($token, 7);
         }
 
-        $decoded = self::$security->verifyToken($token);
-        return $decoded !== null;
+        return $token;
     }
-
+   
+    /**
+     * Metodo que redirige a las diferentes rutas del sitio web
+     */
     public static function dispatch(): void
     {
         $method = $_SERVER['REQUEST_METHOD'];
         $action = preg_replace('/Proyecto-Tienda/', '', $_SERVER['REQUEST_URI']);
         $action = trim($action, '/');
 
-        // Extract query parameters
         $queryPosition = strpos($action, '?');
         if ($queryPosition !== false) {
             $action = substr($action, 0, $queryPosition);
@@ -63,11 +99,9 @@ class Router
             $action = preg_replace('/' . $match[0] . '/', ':id', $action);
         }
 
-        // Check if route exists
         $fn = self::$routes[$method][$action] ?? null;
 
         if ($fn) {
-            // Check if route is protected
             if (isset(self::$protectedRoutes[$method][$action])) {
                 if (!self::validateToken()) {
                     header('HTTP/1.0 401 Unauthorized');

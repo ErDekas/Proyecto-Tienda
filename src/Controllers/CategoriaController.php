@@ -28,12 +28,16 @@ class CategoriaController
 
     public function obtenerCategorias(): void
     {
-        if ($this->utils->isAdmin()) {
-            $admin = true;
-        } else {
-            $admin = false;
-        }
+        $admin = $this->utils->isAdmin();
         $categorias = $this->categoriaServicio->obtenerCategorias();
+
+        if (!$admin) {
+            // Filtrar categorías para eliminar "Sin existencias"
+            $categorias = array_filter($categorias, function ($categoria) {
+                return $categoria['nombre'] !== 'Sin existencias';
+            });
+        }
+
         $this->pages->render(
             '/categorias/index',
             [

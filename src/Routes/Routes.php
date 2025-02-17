@@ -2,6 +2,7 @@
 
 namespace Routes;
 
+use API\APIProductController;
 use Lib\Router;
 use Controllers\CategoriaController;
 use Controllers\ProductoController;
@@ -17,7 +18,7 @@ class Routes
     {
         // Public routes
         Router::add('GET', '/', function () {
-            (new ProductoController())->obtenerProductos();
+            (new ProductoController())->gestion();
         });
 
         // Authentication routes
@@ -39,6 +40,14 @@ class Routes
 
         Router::add('POST', '/usuarios/iniciarSesion', function () {
             (new UsuarioController())->iniciarSesion();
+        });
+
+        Router::add('GET', '/usuarios/recuperar', function() {
+            (new UsuarioController())->recuperar();
+        });
+
+        Router::add('POST', '/usuarios/recuperar', function() {
+            (new UsuarioController())->recuperar();
         });
 
         Router::add('GET', '/usuarios/cerrarSesion', function () {
@@ -87,28 +96,28 @@ class Routes
         // Rutas productos
 
         Router::add('GET', 'productos/index', function () {
-            (new ProductoController())->obtenerProductos();
+            (new ProductoController())->gestion();
         });
         Router::add('GET', '/productos/crear', function () {
-            (new ProductoController())->insertarProducto();
+            (new ProductoController())->guardarProductos();
         });
         Router::add('POST', '/productos/crear', function () {
-            (new ProductoController())->insertarProducto();
+            (new ProductoController())->guardarProductos();
         });
-        Router::add('GET', '/productos/actualizar', function () {
-            (new ProductoController())->actualizarProducto();
+        Router::add('GET', '/productos/actualizar', function (int $id) {
+            (new ProductoController())->updateProduct($id);
         });
-        Router::add('POST', '/productos/actualizar', function () {
-            (new ProductoController())->actualizarProducto();
+        Router::add('POST', '/productos/actualizar', function (int $id) {
+            (new ProductoController())->updateProduct($id);
         });
-        Router::add('GET', '/productos/borrar', function () {
-            (new ProductoController())->borrarProducto();
+        Router::add('GET', '/productos/borrar', function (int $id) {
+            (new ProductoController())->deleteProduct($id);
         });
-        Router::add('POST', '/productos/borrar', function () {
-            (new ProductoController())->borrarProducto();
+        Router::add('POST', '/productos/borrar', function (int $id) {
+            (new ProductoController())->deleteProduct($id);
         });
         Router::add('GET', '/productos/productoInfo:id', function (int $id) {
-            (new ProductoController())->informacionProducto($id);
+            (new ProductoController())->detailProduct($id);
         });
         // Rutas carrito
 
@@ -136,6 +145,26 @@ class Routes
             (new CarritoController())->aumentarMonto($id);
         });
 
+        //Rutas de la API
+        Router::add('GET', '/api/productos', function() {
+            (new APIProductController())->index();
+        });
+        
+        Router::add('POST', '/api/productos/:id', function(int $id) {
+            (new APIProductController())->store($id);
+        });
+        
+        Router::add('GET', '/api/productos/:id', function(int $id) {
+            (new APIProductController())->show($id);
+        });
+        
+        Router::add('PUT', '/api/productos/:id', function(int $id, $productData) {
+            (new APIProductController())->update($id, $productData);
+        });
+        
+        Router::add('DELETE', '/api/productos/:id', function(int $id) {
+            (new APIProductController())->destroy($id);
+        });
 
         // Rutas Pedidos
         Router::add('GET', 'pedido/autenticarPedido', function () {
@@ -153,6 +182,13 @@ class Routes
 
         Router::add('GET', '/error404', function () {
             ErrorController::error404();
+        });
+        Router::add('GET', '/paypal/payment-success', function() {
+            (new PedidoController())->paymentSuccess();
+        });
+        
+        Router::add('GET', '/paypal/payment-cancel', function() {
+            (new PedidoController())->paymentCancel();
         });
 
 

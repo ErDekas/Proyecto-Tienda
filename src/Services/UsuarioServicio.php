@@ -99,4 +99,27 @@ class UsuarioServicio
 
         return null;
     }
+
+    public function guardarTokenRecuperacion(string $email, string $token, string $expiry): bool {
+        try {
+            // Verificar si el usuario existe antes de guardar el token
+            $usuario = $this->obtenerCorreo($email);
+    
+            if (!$usuario) {
+                throw new \Exception('No existe ninguna cuenta asociada a este correo electrónico.');
+            }
+    
+            // Delegar la operación de guardado al repositorio
+            $resultado = $this->repository->guardarTokenRecuperacion($email, $token, $expiry);
+    
+            if (!$resultado) {
+                throw new \Exception('Error al guardar el token de recuperación en la base de datos.');
+            }
+    
+            return true;
+        } catch (\Exception $e) {
+            // Registrar el error o manejarlo según sea necesario
+            throw new \Exception('Error en el servicio al guardar el token de recuperación: ' . $e->getMessage());
+        }
+    }
 }

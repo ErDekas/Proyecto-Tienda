@@ -65,5 +65,27 @@ CONSTRAINT fk_linea_pedido FOREIGN KEY(pedido_id) REFERENCES pedidos(id),
 CONSTRAINT fk_linea_producto FOREIGN KEY(producto_id) REFERENCES productos(id)
 )ENGINE=InnoDb DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+DROP TABLE IF EXISTS carts;
+CREATE TABLE carts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    total_price DECIMAL(10, 2),
+    CONSTRAINT fk_UsuarioCarrito FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+DROP TABLE IF EXISTS cart_items;
+CREATE TABLE cart_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cart_id INT,
+    product_id INT,
+    quantity INT DEFAULT 1,
+    price DECIMAL(10, 2) NOT NULL,
+    CONSTRAINT fk_carritoID FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE CASCADE,
+    CONSTRAINT fk_Producto FOREIGN KEY (product_id) REFERENCES productos(id) ON DELETE CASCADE
+);
 
 
+/* La contraseña es esta: G3st@2024! */
+INSERT INTO usuarios (nombre, apellidos, email, password, rol)
+VALUES 
+('Usuario', 'Alto Bajo', 'usuario@gmail.com', '$2b$10$QSpMtpPuexFLo7I1QA/xl.t/wsX/EJi51sDnGJLiBaNXDb03IIWfm', 'admin');

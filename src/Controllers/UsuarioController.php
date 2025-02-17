@@ -6,6 +6,7 @@ use Lib\Pages;
 use Models\Usuario;
 use Services\UsuarioServicio;
 use Lib\Utils;
+use Lib\MailRecuperacion;
 
 class UsuarioController
 {
@@ -13,6 +14,7 @@ class UsuarioController
     private Pages $pages;
     private Usuario $user;
     private UsuarioServicio $userService;
+    private MailRecuperacion $mailer;
     private Utils $utils;
 
     public function __construct()
@@ -20,11 +22,13 @@ class UsuarioController
         $this->pages = new Pages();
         $this->user = new Usuario();
         $this->userService = new UsuarioServicio();
+        $this->mailer = new MailRecuperacion();
         $this->utils = new Utils();
     }
 
     // Método para registrarse
-    public function registrar() {
+    public function registrar()
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             unset($_SESSION['registrado']);
             $this->pages->render('usuarios/registrar');
@@ -81,18 +85,19 @@ class UsuarioController
         }
     }
 
-    
 
 
-    public function confirmarCuenta() {
+
+    public function confirmarCuenta()
+    {
         $token = $_GET['token'] ?? null;
-        
+
         if (!$token) {
             $_SESSION['error'] = "Token no proporcionado";
             header("Location: " . BASE_URL);
             exit;
         }
-    
+
         try {
             $resultado = $this->userService->confirmarCuenta($token);
             if ($resultado) {
@@ -103,69 +108,64 @@ class UsuarioController
         } catch (\Exception $e) {
             $_SESSION['error'] = "Error al confirmar la cuenta: " . $e->getMessage();
         }
-        
+
         header("Location: " . BASE_URL);
         exit;
     }
 
-    public function iniciarSesion() {
+    public function iniciarSesion()
+    {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'GET'){
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-            if($this->utils->isSession()){
-                header("Location: " . BASE_URL ."");
-            }
-            else{
+            if ($this->utils->isSession()) {
+                header("Location: " . BASE_URL . "");
+            } else {
 
                 $this->pages->render('usuarios/iniciaSesion');
             }
-        }
+        } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        
             $errores = [];
-        
-           
-                $correo = $_POST['correo'];
-                $passwordInicioSesion = $_POST['password'];
 
-                $datosUsuario = $this->userService->obtenerCorreo($correo);
 
-                // Crear objeto Usuario con los datos para iniciar sesión
-                $usuario = new Usuario( null, "", "", $correo, $passwordInicioSesion, "", $datosUsuario['confirmado'], "", "");
+            $correo = $_POST['correo'];
+            $passwordInicioSesion = $_POST['password'];
 
-                // Sanitizar datos
-                $usuario->sanitizarDatos();
+            $datosUsuario = $this->userService->obtenerCorreo($correo);
 
-                // Validar datos
-                $errores = $usuario->validarDatosLogin();
+            // Crear objeto Usuario con los datos para iniciar sesión
+            $usuario = new Usuario(null, "", "", $correo, $passwordInicioSesion, "", $datosUsuario['confirmado'], "", "");
 
-                // Si no hay errores volver a inicio si hay mostrarlos en el formulario
-                if (empty($errores)) {
-                    $resultado = $this->userService->iniciarSesion($usuario->getCorreo(), $usuario->getPassword());
-    
-                    if ($resultado) {
-                        $_SESSION['usuario'] = $resultado;
+            // Sanitizar datos
+            $usuario->sanitizarDatos();
 
-                        if (!isset($_SESSION['usuario'])) {
-                            echo "Error: la sesión no se ha establecido";
-                            exit;
-                        }
-                        header("Location: " . BASE_URL);
+            // Validar datos
+            $errores = $usuario->validarDatosLogin();
+
+            // Si no hay errores volver a inicio si hay mostrarlos en el formulario
+            if (empty($errores)) {
+                $resultado = $this->userService->iniciarSesion($usuario->getCorreo(), $usuario->getPassword());
+
+                if ($resultado) {
+                    $_SESSION['usuario'] = $resultado;
+
+                    if (!isset($_SESSION['usuario'])) {
+                        echo "Error: la sesión no se ha establecido";
                         exit;
-                    } 
-                    else {
-                        $errores['login'] = "Los datos introducidos son incorrectos";
                     }
+                    header("Location: " . BASE_URL);
+                    exit;
+                } else {
+                    $errores['login'] = "Los datos introducidos son incorrectos";
                 }
+            }
 
-                // Redirigir la vista con los errores 
-                $this->pages->render('usuarios/iniciaSesion', ["errores" => $errores]);
-            
-        
+            // Redirigir la vista con los errores 
+            $this->pages->render('usuarios/iniciaSesion', ["errores" => $errores]);
         }
     }
 
@@ -190,5 +190,70 @@ class UsuarioController
         $usuActual = $_SESSION['usuario'];
 
         $this->pages->render("usuarios/datosUsuario", ["usuario" => $usuActual]);
+    }
+
+    public function recuperar()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            if ($this->utils->isSession()) {
+                header("Location: " . BASE_URL);
+                exit;
+            }
+            $this->pages->render('usuarios/recuperar');
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $errores = [];
+            $email = $_POST['email'] ?? '';
+
+            if (empty($email)) {
+                $errores['email'] = "Por favor, introduce tu correo electrónico";
+            } else {
+                $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+
+                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $errores['email'] = "El formato del correo electrónico no es válido";
+                } else {
+                    $usuario = $this->userService->obtenerCorreo($email);
+                    if (!$usuario) {
+                        $errores['email'] = "No existe ninguna cuenta asociada a este correo electrónico";
+                    }
+                }
+            }
+
+            if (empty($errores)) {
+                $token = bin2hex(random_bytes(32));
+                $expiry = date('Y-m-d H:i:s', strtotime('+24 hours'));
+
+                try {
+                    $resultado = $this->userService->guardarTokenRecuperacion($email, $token, $expiry);
+
+                    if ($resultado) {
+                        $nombre = $usuario['nombre'] ?? 'Usuario'; // Nombre del usuario si está en la BD
+                        $emailEnviado = $this->mailer->sendRecoveryEmail($email, $nombre, $token);
+
+                        if ($emailEnviado) {
+                            $_SESSION['mensaje'] = "Se ha enviado un enlace de recuperación a tu correo electrónico";
+                        } else {
+                            $errores['email'] = "Hubo un problema al enviar el correo de recuperación.";
+                        }
+
+                        header("Location: " . BASE_URL . "usuarios/recuperar");
+                        exit;
+                    } else {
+                        $errores['db'] = "Error al procesar la solicitud de recuperación";
+                    }
+                } catch (\Exception $e) {
+                    error_log("Error en recuperación de cuenta: " . $e->getMessage());
+                    $errores['sistema'] = "Ha ocurrido un error en el sistema, inténtelo más tarde";
+                }
+            }
+
+            $this->pages->render('usuarios/recuperar', ["errores" => $errores]);
+        }
     }
 }

@@ -13,6 +13,7 @@ return array(
     'Services\\' => array($baseDir . '/src/Services'),
     'Routes\\' => array($baseDir . '/src/Routes'),
     'Repositories\\' => array($baseDir . '/src/Repositories'),
+    'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
     'PhpOption\\' => array($vendorDir . '/phpoption/phpoption/src/PhpOption'),
     'PHPMailer\\PHPMailer\\' => array($vendorDir . '/phpmailer/phpmailer/src'),
     'Models\\' => array($baseDir . '/src/Models'),
@@ -22,4 +23,5 @@ return array(
     'Dotenv\\' => array($vendorDir . '/vlucas/phpdotenv/src'),
     'Deka\\ProyectoTienda\\' => array($baseDir . '/src'),
     'Controllers\\' => array($baseDir . '/src/Controllers'),
+    'API\\' => array($baseDir . '/src/API'),
 );

@@ -44,4 +44,9 @@ class PedidoServicio
     {
         return $this->pedidoRepository->verPedidos();
     }
+
+    public function verTodosLosPedidos(): array
+    {
+        return $this->pedidoRepository->verTodosLosPedidos();
+    }
 }

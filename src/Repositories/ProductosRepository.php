@@ -105,6 +105,15 @@ class ProductosRepository
                 throw new Exception("El producto no existe.");
             }
 
+            // Verificamos si el producto ha sido pedido
+            $pedidoStmt = $this->conexion->prepare("SELECT COUNT(*) FROM lineas_pedidos WHERE producto_id = :id");
+            $pedidoStmt->bindValue(":id", $id, PDO::PARAM_INT);
+            $pedidoStmt->execute();
+
+            if ($pedidoStmt->fetchColumn() > 0) {
+                throw new Exception("El producto no puede ser borrado porque ha sido pedido.");
+            }
+
             // Primero eliminamos las referencias en lineas_pedidos
             $lineasStmt = $this->conexion->prepare("DELETE FROM lineas_pedidos WHERE producto_id = :id");
             $lineasStmt->bindValue(":id", $id, PDO::PARAM_INT);
@@ -125,6 +134,10 @@ class ProductosRepository
         } catch (PDOException $ex) {
             $this->conexion->deshacer();
             error_log("Error al ejecutar el borrado: " . $ex->getMessage());
+            return false;
+        } catch (Exception $ex) {
+            $this->conexion->deshacer();
+            error_log("Error: " . $ex->getMessage());
             return false;
         }
     }

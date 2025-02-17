@@ -244,8 +244,6 @@ class CarritoController {
 
         $cartItems = $this->cartItemService->loadCartItems($cart['id']);
 
-        //die(var_dump($cartItems));
-
         if (!empty($cartItems)) {  
     
             foreach ($cartItems as $item) {

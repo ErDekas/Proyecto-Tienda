@@ -125,23 +125,23 @@ class Routes
             (new CarritoController())->cargarCarrito();
         });
 
-        Router::add('POST', 'carrito/anadirProducto/:id', function (int $id) {
+        Router::add('GET', 'carrito/anadirProducto/:id', function (int $id) {
             (new CarritoController())->anadirProducto($id);
         });
 
-        Router::add('POST', 'carrito/eliminarProducto/:id', function (int $id) {
+        Router::add('GET', 'carrito/eliminarProducto/:id', function (int $id) {
             (new CarritoController())->eliminarProducto($id);
         });
 
-        Router::add('POST', 'carrito/limpiarCarrito', function () {
+        Router::add('GET', 'carrito/limpiarCarrito', function () {
             (new CarritoController())->limpiarCarrito();
         });
 
-        Router::add('POST', 'carrito/bajarMonto/:id', function (int $id) {
+        Router::add('GET', 'carrito/bajarMonto/:id', function (int $id) {
             (new CarritoController())->bajarMonto($id);
         });
 
-        Router::add('POST', 'carrito/aumentarMonto/:id', function (int $id) {
+        Router::add('GET', 'carrito/aumentarMonto/:id', function (int $id) {
             (new CarritoController())->aumentarMonto($id);
         });
 

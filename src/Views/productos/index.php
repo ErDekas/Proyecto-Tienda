@@ -7,10 +7,10 @@
         <a href="<?= BASE_URL ?>productos/borrar" class="botonesProductos">Borrar producto</a>
     <?php endif ?>
     <?php if(isset($_SESSION['usuario']) && $admin): ?>
-        <a href="<?= BASE_URL?>Order/seeAllOrders" class="botonesProductos">Ver todos los pedidos</a>
+        <a href="<?= BASE_URL?>pedido/pedidos" class="botonesProductos">Ver todos los pedidos</a>
     <?php endif;?>
     <?php if(isset($_SESSION['usuario'])): ?>
-        <a href="<?= BASE_URL?>Order/seeOrders" class="botonesProductos">Ver mis pedidos</a>
+        <a href="<?= BASE_URL?>pedido/pedidos" class="botonesProductos">Ver mis pedidos</a>
     <?php endif;?>
 
 </div>

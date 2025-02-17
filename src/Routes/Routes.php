@@ -104,17 +104,17 @@ class Routes
         Router::add('POST', '/productos/crear', function () {
             (new ProductoController())->guardarProductos();
         });
-        Router::add('GET', '/productos/actualizar', function (int $id) {
-            (new ProductoController())->updateProduct($id);
+        Router::add('GET', '/productos/actualizar', function () {
+            (new ProductoController())->actualizarProducto();
         });
-        Router::add('POST', '/productos/actualizar', function (int $id) {
-            (new ProductoController())->updateProduct($id);
+        Router::add('POST', '/productos/actualizar', function () {
+            (new ProductoController())->actualizarProducto();
         });
-        Router::add('GET', '/productos/borrar', function (int $id) {
-            (new ProductoController())->deleteProduct($id);
+        Router::add('GET', '/productos/borrar', function () {
+            (new ProductoController())->borrarProducto();
         });
-        Router::add('POST', '/productos/borrar', function (int $id) {
-            (new ProductoController())->deleteProduct($id);
+        Router::add('POST', '/productos/borrar', function () {
+            (new ProductoController())->borrarProducto();
         });
         Router::add('GET', '/productos/productoInfo:id', function (int $id) {
             (new ProductoController())->detailProduct($id);

@@ -76,7 +76,7 @@ class ProductoController {
     public function guardarProductos() {
         
 
-        if ($_SERVER['REQUobtenerProductosEST_METHOD'] === 'GET'){
+        if ($_SERVER['REQUEST_METHOD'] === 'GET'){
 
             if(!$this->utils->isAdmin()){
                 header("Location: " . BASE_URL ."");
@@ -207,41 +207,35 @@ class ProductoController {
      * @var id id del producto a borrar
      * @return void
      */
-    public function deleteProduct (int $id){
-        if(!$this->utils->isAdmin()){
-            header("Location: " . BASE_URL ."");
-        }
-        else{
-            $lines = $this->orderLineService->verLineasDePedido($id);
-            if(!empty($lines)){
-                $update = $this->productService->obtenerProductosPorCategoria($id);
-                if ($update === true) {
-                    die("he entrado 1");
-                    header("Location: " . BASE_URL ."");
-                } 
-                else {
-                    $_SESSION['falloDatos'] = 'fallo';
-                    $this->pages->render('productos/productoInfo/$id');
-                }
-            }
-            else{
-                ob_start();
-                $this->productApiController->destroy($id);
-                $resultado = json_decode(ob_get_clean(), true);
+    public function borrarProducto()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            if (!$this->utils->isAdmin()) {
+                header("Location" . BASE_URL . "");
+            } else {
+                unset($_SESSION['errores']);
+                unset($_SESSION['borrado']);
 
-                if (isset($resultado['mensaje'])) {
-                    header("Location: " . BASE_URL ."");
-                    exit;
-                } 
-                else {
-                    $_SESSION['falloDatos'] = 'fallo';
-                    $this->pages->render('productos/productoInfo/$id');
-                }
+                $productos = $this->productService->obtenerProductos(); // Método para obtener productos
+                $this->pages->render('productos/borrar', [
+                    'productos' => $productos,
+                    'errores' => $errores ?? null,
+                ]);
             }
+        } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $productoId = $_POST['productoSeleccionado'];
 
-            
+            $resultado = $this->productService->borrarProducto($productoId);
+
+            if ($resultado === true) {
+                $_SESSION['borrado'] = true;
+                $this->pages->render('productos/borrar');
+                exit;
+            } else {
+                $_SESSION['errores'] = 'fallo';
+                $this->pages->render('productos/borrar', ["errores" => ['db' => "Error al borrar el producto."]]);
+            }
         }
-                    
     }
 
     /**
@@ -249,51 +243,44 @@ class ProductoController {
      * @var id id del producto aactualizar
      * @return void
      */
-    public function updateProduct(int $id){
-        if ($_SERVER['REQUEST_METHOD'] === 'GET'){
-
-            if(!$this->utils->isAdmin()){
-                header("Location: " . BASE_URL ."");
-            }
-            else{
-
+    public function actualizarProducto()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            if (!$this->utils->isAdmin()) {
+                header("Location" . BASE_URL . "");
+            } else {
+                unset($_SESSION['errores']);
                 unset($_SESSION['actualizado']);
 
-                $categorias = $this->categoryService->obtenerCategorias();
-                $product = $this->productService->informacionProducto($id);
+                $categoriasServicio = $this->categoryService->obtenerCategorias();
+                $productos = $this->productService->obtenerProductos(); // Asume que existe este método
 
-
-                $this->pages->render('productos/actualizar',
-                [
-                    'categorias' => $categorias,
-                    'product' => $product
-                ]);
+                $this->pages->render(
+                    'productos/actualizar',
+                    [
+                        'categorias' => $categoriasServicio,
+                        'productos' => $productos
+                    ]
+                );
             }
-        }
-
-        else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['_method']) && $_POST['_method'] === 'PUT') {
-                $_SERVER['REQUEST_METHOD'] = 'PUT';
-            }
-
-            $imagenNombre = '';
-            $rutaCarpeta = '../../public/img';
+        } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $imagenNombre = null;
+            $rutaCarpeta = '../../public/IMG';
             $tiposPermitidos = ['image/jpeg', 'image/png', 'image/gif'];
 
-
+            $cambiarIdProducto = $_POST['productoSeleccionado'];
             if (!is_dir($rutaCarpeta)) {
-                mkdir($rutaCarpeta, 0777, true); 
+                mkdir($rutaCarpeta, 0777, true);
             }
 
             if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
-                $tipoArchivo = mime_content_type($_FILES['imagen']['tmp_name']); 
+                $tipoArchivo = mime_content_type($_FILES['imagen']['tmp_name']);
                 if (!in_array($tipoArchivo, $tiposPermitidos)) {
                     $errores['imagen'] = "El archivo debe ser una formato válido (JPEG, PNG o GIF).";
                 } else {
                     $imagenNombre = basename($_FILES['imagen']['name']);
                     $rutaArchivo = rtrim($rutaCarpeta, '/') . '/' . $imagenNombre;
-    
+
                     if (!move_uploaded_file($_FILES['imagen']['tmp_name'], $rutaArchivo)) {
                         $errores['imagen'] = "No se pudo guardar el archivo de la imagen.";
                     }
@@ -302,64 +289,50 @@ class ProductoController {
                 $errores['imagen'] = "Error al cargar la imagen: " . $_FILES['imagen']['error'];
             }
 
-            ob_start();
-            $this->productApiController->show($id);
-            $product = json_decode(ob_get_clean(), true);
 
+            $producto = new Productos(
+                $cambiarIdProducto,
+                intval($_POST['categoria']),
+                $_POST['nombre'],
+                $_POST['descripcion'],
+                floatval($_POST['precio']),
+                intval($_POST['stock']),
+                $_POST['oferta'],
+                $_POST['fecha'],
+                $imagenNombre
+            );
+            // Sanitizar datos
+            $producto->sanitizarDatos();
 
-            if($imagenNombre === ''){
-                $imagenNombre = $product["data"]["imagen"];
-            }
+            // Validar datos
+            $errores = $producto->validarDatosProductos();
 
-                $producto = new Productos(
-                    null,
-                    $_POST['categoria'],
-                    $_POST['nombre'],
-                    $_POST['descripcion'],
-                    $_POST['precio'],
-                    $_POST['stock'],
-                    $_POST['oferta'],
-                    "",
-                    $imagenNombre
-                );
+            if (empty($errores)) {
 
-                // Sanitizar datos
-                $producto->sanitizarDatos();
-                
-                // Validar datos
-                $errores = $producto->validarUpdate();
+                $productData = [
+                    'categoria_id' => intval($_POST['categoria']),
+                    'nombre' => htmlspecialchars($_POST['nombre']),
+                    'descripcion' => htmlspecialchars($_POST['descripcion']),
+                    'precio' => floatval($_POST['precio']),
+                    'stock' => intval($_POST['stock']),
+                    'oferta' => htmlspecialchars($_POST['oferta']),
+                    'fecha' => $_POST['fecha'],
+                    'imagen' => $imagenNombre,
+                ];
 
-                if (empty($errores)) {
-                    
-                    $apiData = json_encode([
-                        'categoria_id' => $producto->getCategoriaId(),
-                        'nombre' => $producto->getNombre(),
-                        'descripcion' => $producto->getDescripcion(),
-                        'precio' => $producto->getPrecio(),
-                        'stock' => $producto->getStock(),
-                        'oferta' => $producto->getOferta(),
-                        'fecha' => $producto->getFecha(),
-                        'imagen' => $producto->getImagen(),
-                    ]);
+                $resultado = $this->productService->actualizarProducto($productData, $cambiarIdProducto);
 
-                    ob_start();
-                    $this->productApiController->update($id, $apiData);
-                    $resultado = json_decode(ob_get_clean(), true);
-                    
-                    if (isset($resultado['mensaje'])) {
-                        $_SESSION['actualizado'] = true;
-                        $this->pages->render('productos/actualizar');
-                        exit;
-                    } 
-                    else {
-                        $errores = $response['errores'] ?? ['db' => 'Error al actualizar el producto'];
-                        $this->pages->render('productos/actualizar', ["errores" => $errores]);
-                    }
-                } 
-                else {
+                if ($resultado === true) {
+                    $_SESSION['actualizado'] = true;
+                    $this->pages->render('productos/actualizar');
+                    exit;
+                } else {
+                    $errores['db'] = "Error al actualizar el producto: " . $resultado;
                     $this->pages->render('productos/actualizar', ["errores" => $errores]);
                 }
-            
+            } else {
+                $this->pages->render('productos/actualizar', ["errores" => $errores]);
+            }
         }
     }
 

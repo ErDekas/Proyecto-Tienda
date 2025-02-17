@@ -25,7 +25,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <label for="contrasena">Contraseña:</label>
             <input type="password" name="data[contrasena]" id="contrasena"><br><br>
             <?php if (isset($errores['contrasena'])): ?>
-                <p style="color:red;"><?php echo $errores['contrasena']; ?></p>
+                <p class="error"><?php echo $errores['contrasena']; ?></p>
             <?php endif; ?>
 
             <label for="confirmar_contrasena">Confirmar Contraseña:</label>

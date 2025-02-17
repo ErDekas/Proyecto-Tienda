@@ -205,11 +205,11 @@ class Usuario
     public function validarDatosCambioContraseña(): array {
         $errores = [];
 
-        if (empty($this->contrasena)) {
+        
+        if (empty($_POST['data']['contrasena'])) {
             $errores['contrasena'] = "El campo contraseña es obligatorio.";
         }
-
-        else if(!Validar::validarPassword($this->password)){
+        else if(!Validar::validarPassword($_POST['data']['contrasena'])){
             $errores['contrasena'] = "La contraseña no es válida";
         }
 
@@ -221,7 +221,7 @@ class Usuario
             $data['id'] ?? null,
             $data['nombre'] ?? "",
             $data['apellidos'] ?? "",
-            $data['email'] ?? "",
+            $data['correo'] ?? "",
             $data['password'] ?? "",
             $data['rol'] ?? 'user' ?? 'admin',
             $data['confirmado'] ?? FALSE ?? TRUE

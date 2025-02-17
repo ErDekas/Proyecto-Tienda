@@ -239,7 +239,7 @@ class UsuarioController
                 'nombre' => '',
                 'apellidos' => '',
                 'correo' => $correo,
-                'contrasena' => '',
+                'password' => '',
                 'rol' => '',
                 'confirmado' => '',
                 'token' => $token,

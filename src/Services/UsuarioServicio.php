@@ -129,7 +129,7 @@ class UsuarioServicio
                 $userData['nombre'],
                 $userData['apellidos'],
                 $userData['correo'],
-                $userData['contrasena'],
+                $userData['password'],
                 $userData['rol'],
                 $userData['confirmado'],
                 $userData['token'],

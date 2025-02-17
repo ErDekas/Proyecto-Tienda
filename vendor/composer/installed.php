@@ -3,7 +3,7 @@
         'name' => 'deka/proyecto-tienda',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'b62316f4e32b3bde07b621e6870f585746ed347d',
+        'reference' => 'f20d8e1e67f4efacf62358eb5398f98adff84395',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'deka/proyecto-tienda' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'b62316f4e32b3bde07b621e6870f585746ed347d',
+            'reference' => 'f20d8e1e67f4efacf62358eb5398f98adff84395',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

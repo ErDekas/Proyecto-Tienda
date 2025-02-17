@@ -11,6 +11,9 @@ apellidos       varchar(255),
 email           varchar(255) not null,
 password        varchar(255) not null,
 rol             varchar(20),
+confirmado      tinyint(1) DEFAULT 0,
+token           varchar(255),
+token_exp       datetime,
 CONSTRAINT pk_usuarios PRIMARY KEY(id),
 CONSTRAINT uq_email UNIQUE(email)  
 )ENGINE=InnoDb DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -85,7 +88,7 @@ CREATE TABLE cart_items (
 );
 
 
-/* La contraseña es esta: G3st@2024! */
-INSERT INTO usuarios (nombre, apellidos, email, password, rol)
+/* La contraseña es esta: Admin.42 */
+INSERT INTO usuarios (nombre, apellidos, email, password, rol, confirmado, token, token_exp)
 VALUES 
-('Usuario', 'Alto Bajo', 'usuario@gmail.com', '$2b$10$QSpMtpPuexFLo7I1QA/xl.t/wsX/EJi51sDnGJLiBaNXDb03IIWfm', 'admin');
+('Admin', '42', 'admini@gmail.com', '$2y$10$tWdWmBNDtceabU5UQ2y3xOkprvU8OVrL9wuCOPYoGG0FOtaEwnU42', 'admin', 1, NULL, NULL);

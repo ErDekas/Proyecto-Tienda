@@ -59,7 +59,7 @@ class Router {
             return false;
         }
 
-        return self::$security->validaToken($token) !== null;
+        return self::$security->verifyToken($token) !== null;
     }
     
     /**

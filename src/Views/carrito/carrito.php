@@ -1,5 +1,4 @@
 <div id="cart">
-
     <?php if (!isset($_SESSION['carrito']) || empty($_SESSION['carrito'])): ?>
         <h2>El carrito esta vacio</h2>
     <?php else: ?>
@@ -11,60 +10,67 @@
             <th></th>
 
             <?php foreach ($_SESSION['carrito'] as $cart): ?>
-
                 <tr>
-
                     <td class="imageCartItem">
-                        <img src="<?= BASE_URL ?>../../public/IMG/<?= $cart['imagen'] ?>" alt="producto" class="imageCart">
+                        <img src="<?= BASE_URL ?>../../public/IMG/<?= htmlspecialchars($cart['imagen']) ?>" 
+                             alt="producto" 
+                             class="imageCart">
                     </td>
 
                     <td class="nameCartItem">
-                        <a href="<?= BASE_URL ?>productos/productoInfo<?= htmlspecialchars($cart['id']) ?>"><?= htmlspecialchars($cart["nombre"]) ?></a>
+                        <a href="<?= BASE_URL ?>productos/productoInfo<?= htmlspecialchars($cart['id']) ?>">
+                            <?= htmlspecialchars($cart["nombre"]) ?>
+                        </a>
                     </td>
+
                     <td class="priceCartItem">
                         <?= htmlspecialchars($cart["precio"]) ?> €
                     </td>
+
                     <td class="amountCartItem">
-                        <a href="<?= BASE_URL ?>carrito/bajarMonto/<?= $cart['id'] ?>" class="cartOperation"> -</a>
+                        <form method="POST" action="<?= BASE_URL ?>carrito/bajarMonto/<?= $cart['id'] ?>" style="display: inline;">
+                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                            <button type="submit" class="cartOperation">-</button>
+                        </form>
+
                         <?= htmlspecialchars($cart["cantidad"]) ?>
-                        <a href="<?= BASE_URL ?>carrito/aumentarMonto/<?= $cart['id'] ?>" class="cartOperation"> + </a>
+
+                        <form method="POST" action="<?= BASE_URL ?>carrito/aumentarMonto/<?= $cart['id'] ?>" style="display: inline;">
+                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                            <button type="submit" class="cartOperation" <?= $cart["cantidad"] >= $cart["stock"] ? 'disabled' : '' ?>>+</button>
+                        </form>
+
                         <?php if (isset($error)): ?>
-                            <span><?= $error ?></span>
+                            <span><?= htmlspecialchars($error) ?></span>
                         <?php endif; ?>
                     </td>
+
                     <td class="removeCartItem">
-                        <a href="<?= BASE_URL ?>carrito/eliminarProducto/<?= $cart['id'] ?>" class="botonesProductos">Eliminar producto</a>
+                        <form method="POST" action="<?= BASE_URL ?>carrito/eliminarProducto/<?= $cart['id'] ?>">
+                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                            <button type="submit" class="botonesProductos">Eliminar producto</button>
+                        </form>
+
                         <?php if (isset($errorRemove)): ?>
-                            <span><?= $errorRemove ?></span>
+                            <span><?= htmlspecialchars($errorRemove) ?></span>
                         <?php endif; ?>
                     </td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
 
+        <div class="inforCart">
+            <h2 id="totalPrice">Precio total: <?= $_SESSION['precio'] ?> €</h2>
 
-</div>
+            <form method="POST" action="<?= BASE_URL ?>carrito/limpiarCarrito" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <button type="submit" class="botonesProductos">Vaciar carrito</button>
+            </form>
 
-
-</div>
-</tr>
-
-<?php endforeach; ?>
-
-
-</table>
-
-<div class="inforCart">
-
-    <h2 id="totalPrice">Precio total: <?= $_SESSION['precio'] ?> €</h2>
-
-    <a href="<?= BASE_URL ?>carrito/limpiarCarrito" class="botonesProductos">Vaciar carrito</a>
-
-    <a href="<?= BASE_URL ?>pedido/autenticarPedido" class="botonesProductos">Confirmar pedido</a>
-
-</div>
-
-
-
-<?php endif; ?>
-
-
-
+            <form method="POST" action="<?= BASE_URL ?>pedido/formularioDePedido" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <button type="submit" class="botonesProductos">Confirmar pedido</button>
+            </form>
+        </div>
+    <?php endif; ?>
 </div>

@@ -20,7 +20,7 @@
                 <?php endif; ?>
                 <li><a href="<?= BASE_URL ?>categorias/index">Categorias</a></li>
                 <li><a href="<?= BASE_URL ?>productos/index">Productos</a></li>
-                <li><a href="<?= BASE_URL ?>carrito/cargarCarrito">Ver Carrito</a></li>
+                <li><a href="<?= BASE_URL ?>Cart/loadCart">Ver Carrito</a></li>
                 <?php if (!isset($_SESSION['usuario'])):  ?>
                     <li><a href="<?= BASE_URL ?>usuarios/registrar">Registrarse</a></li>
                     <li><a href="<?= BASE_URL ?>usuarios/iniciarSesion">Iniciar Sesión</a></li>

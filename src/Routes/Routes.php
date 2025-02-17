@@ -8,7 +8,7 @@ use Controllers\CategoriaController;
 use Controllers\ProductoController;
 use Controllers\ErrorController;
 use Controllers\UsuarioController;
-use Controllers\CarritoController;
+use Controllers\CartController;
 use Controllers\PedidoController;
 use Models\Pedido;
 
@@ -121,28 +121,28 @@ class Routes
         });
         // Rutas carrito
 
-        Router::add('GET', 'carrito/cargarCarrito', function () {
-            (new CarritoController())->cargarCarrito();
+        Router::add('GET','/Cart/loadCart',function(){
+            (new CartController())->loadCart();
         });
 
-        Router::add('GET', 'carrito/anadirProducto/:id', function (int $id) {
-            (new CarritoController())->anadirProducto($id);
+        Router::add('GET','/Cart/addProduct/:id',function(int $id){
+            (new CartController())->addProduct($id);
         });
 
-        Router::add('GET', 'carrito/eliminarProducto/:id', function (int $id) {
-            (new CarritoController())->eliminarProducto($id);
+        Router::add('GET','/Cart/clearCart',function(){
+            (new CartController())->clearCart();
         });
 
-        Router::add('GET', 'carrito/limpiarCarrito', function () {
-            (new CarritoController())->limpiarCarrito();
+        Router::add('GET','/Cart/removeItem/:id',function(int $id){
+            (new CartController())->removeItem($id);
         });
 
-        Router::add('GET', 'carrito/bajarMonto/:id', function (int $id) {
-            (new CarritoController())->bajarMonto($id);
+        Router::add('GET','/Cart/downAmount/:id',function(int $id){
+            (new CartController())->downAmount($id);
         });
 
-        Router::add('GET', 'carrito/aumentarMonto/:id', function (int $id) {
-            (new CarritoController())->aumentarMonto($id);
+        Router::add('GET','/Cart/upAmount/:id',function(int $id){
+            (new CartController())->upAmount($id);
         });
 
         //Rutas de la API

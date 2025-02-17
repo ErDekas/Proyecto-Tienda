@@ -2,24 +2,24 @@
 
 namespace Services;
 
-use Models\ObjetoCarrito;
-use Repositories\ObjetoCarritoRepository;
+use Models\CartItem;
+use Repositories\CartItemsRepository;
 
 /**
  * Clase que recibe los datos de CartController
  * y se los pasa al repository
  */
-class CarritoObjetoServicio {
+class CartItemService {
     /**
      * Variable para establecer la conexion el repository
      */
-    private ObjetoCarritoRepository $repository;
+    private CartItemsRepository $repository;
 
     /**
      * Constructor que inicializa las variables
      */
     public function __construct() {
-        $this->repository = new ObjetoCarritoRepository();
+        $this->repository = new CartItemsRepository();
     }
 
     /**

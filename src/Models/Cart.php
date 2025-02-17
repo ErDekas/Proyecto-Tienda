@@ -2,12 +2,12 @@
 
 namespace Models;
 
-class Carrito {
+class Cart {
 
     public function __construct(
         private ?int $id = null,
         private string $userId = "",
-        private float $price = 0,
+        private float $price = "",
     ) {
     }
 

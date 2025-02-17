@@ -4,27 +4,26 @@ namespace Repositories;
 
 use Lib\BaseDatos;
 use Models\Cart;
-use Models\ObjetoCarrito;
 use PDO;
 use PDOException;
-use Repositories\ObjetoCarritoRepository;
+use Repositories\CartItemsRepository;
 
 /**
  * Clase que realiza las consultas a la tabla carts
  */
-class CarritoRepository {
+class CartRepository {
     /**
      * Variables para establecer la conexion con la base de datos
      */
     private BaseDatos $conexion;
-    private ObjetoCarritoRepository $cartItemsRepository;
+    private CartItemsRepository $cartItemsRepository;
 
     /**
      * Constructor que inicializa las variables
      */
     public function __construct() {
         $this->conexion = new BaseDatos();
-        $this->cartItemsRepository = new ObjetoCarritoRepository();
+        $this->cartItemsRepository = new CartItemsRepository();
     }
 
     /**

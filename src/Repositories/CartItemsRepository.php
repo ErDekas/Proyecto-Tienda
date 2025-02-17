@@ -3,14 +3,14 @@
 namespace Repositories;
 
 use Lib\BaseDatos;
-use Models\ObjetoCarrito;
+use Models\CartItems;
 use PDO;
 use PDOException;
 
 /**
  * Clase que realiza las consultas a la tabla carts
  */
-class ObjetoCarritoRepository {
+class CartItemsRepository {
     /**
      * Variables para establecer la conexion con la base de datos
      */

@@ -21,7 +21,7 @@
                 <div class="ofertDetail">Oferta de <?= htmlspecialchars($detail["oferta"]) ?>%</div>
                 <?php if ($detail["stock"] != 0): ?>
                     <div class="buttonCart">
-                        <a href="<?= BASE_URL ?>carrito/anadirProducto/<?= htmlspecialchars($detail["id"]) ?>" class="botonesProductos">Añadir al carrito</a>
+                        <a href="<?= BASE_URL ?>Cart/addProduct/<?= htmlspecialchars($detail["id"]) ?>" class="botonesProductos">Añadir al carrito</a>
                     </div>
                 <?php endif; ?>
             </div>

@@ -5,16 +5,16 @@ namespace Controllers;
 use Lib\Pages;
 use Models\Product;
 use Lib\Utils;
-use Models\Carrito;
+use Models\Cart;
 use Services\ProductosServicio;
 use Services\CategoriaServicio;
-use Services\CarritoServicio;
-use Services\CarritoObjetoServicio;
+use Services\CartService;
+use Services\CartItemService;
 
 /**
  * Clase para controlar el carrito
  */
-class CarritoController {
+class CartController {
 
     /**
      * Variables privadas del controlador
@@ -22,8 +22,8 @@ class CarritoController {
     private Pages $pages;
     private Utils $utils;
     private ProductosServicio $productService;
-    private CarritoObjetoServicio $cartItemService;
-    private CarritoServicio $cartService;
+    private CartItemService $cartItemService;
+    private CartService $cartService;
     
     /**
      * Constructor para inicializar las variables
@@ -32,27 +32,22 @@ class CarritoController {
         $this->pages = new Pages();
         $this->utils = new Utils();
         $this->productService = new ProductosServicio();
-        $this->cartService = new CarritoServicio();
-        $this->cartItemService = new CarritoObjetoServicio();
-        $this->initializeCart();
-    }
-    private function initializeCart(): void {
-        if (!isset($_SESSION['carrito'])) {
-            $_SESSION['carrito'] = []; 
-        }
-    }
-    private function renderCartView(array $params = []): void {
-        $total = $this->precioTotal();
-        $_SESSION['precio'] = $total;
-        $this->pages->render('carrito/carrito', $params);
+        $this->cartService = new CartService();
+        $this->cartItemService = new CartItemService();
     }
 
     /**
      * Método que renderiza la vista del carrito
      * @return void
      */
-    public function cargarCarrito(): void {
-        $this->initializeCart();
+    public function loadCart(){
+        if (!isset($_SESSION['carrito'])) {
+            $_SESSION['carrito'] = []; 
+        }
+
+        $total = $this->priceTotal();
+
+        $_SESSION['totalCost'] = $total;
 
         if(isset($_SESSION['usuario'])){
             $cartUser = $this->loadFromDatabase();
@@ -61,20 +56,24 @@ class CarritoController {
             }
         }
 
-        $this->renderCartView();
+        $this->pages->render('Cart/cart'); 
+
     }
 
     /**
      * Metodo que calcula el precio total del carrito
      * @return int $total -> Varaible con el precio total del carrito
      */
-    private function precioTotal(): float {
+    public function priceTotal (){
         $total = 0;
+
+
         if(isset($_SESSION['carrito']) && !empty($_SESSION['carrito'])){
             foreach($_SESSION['carrito'] as $item){
                 $total += $item['precio'] * $item['cantidad'];
             }
         }
+
         return $total;
     }
 
@@ -85,56 +84,70 @@ class CarritoController {
      * @var id id del producto a añadir al carrito
      * @return void
      */
-    public function anadirProducto(int $id): void {
-        $productCart = $this->productService->informacionProducto($id);
-        
-        if (!$productCart) {
-            $this->renderCartView(['error' => 'Producto no encontrado']);
-            return;
+    public function addProduct(int $id){
+
+        if (!isset($_SESSION['carrito'])) {
+            $_SESSION['carrito'] = array(); 
         }
+
+
+        $productCart = $this->productService->informacionProducto($id);
+
+        //die(var_dump($productCart));
+        //unset($_SESSION['carrito']);
 
         if (isset($_SESSION['carrito'][$id])) {
             if($_SESSION['carrito'][$id]['cantidad'] === $_SESSION['carrito'][$id]['stock']){
-                $this->renderCartView(['error' => 'Stock máximo alcanzado']);
-                return;
+                //$this->loadCart(); 
+                header("Location: " . BASE_URL . "Cart/loadCart");
+                exit;
             }
-            $_SESSION['carrito'][$id]['cantidad']++; 
-        } else {
-            $_SESSION['carrito'][$id] = [
+            else{
+                $_SESSION['carrito'][$id]['cantidad'] += 1; 
+            }
+             
+        } 
+        else {
+            $_SESSION['carrito'][$id] = array(
                 'id' => $productCart[0]['id'],
                 'imagen' => $productCart[0]['imagen'],
                 'nombre' => $productCart[0]['nombre'],
                 'precio' => $productCart[0]['precio'],
                 'stock' => $productCart[0]['stock'],
-                'cantidad' => 1
-            ];
+                'cantidad' => 1  
+            );
         }
+        
 
         if(isset($_SESSION['usuario'])){
             $cart = $this->cartService->loadCart();
+
             if($cart){
                 $this->cartItemService->addNewProductsToCart($cart['id']);
-                $total = $this->precioTotal();
+
+                $total = $this->priceTotal();
                 $this->cartService->updateTotalPrice($cart['id'], $total);
             }
         }
 
-        $this->renderCartView();
+        //die(var_dump($_SESSION['carrito']));
+        $this->loadCart();
+
     }
 
     /**
      * Metodo que vacia el carrito y redirije a la vista
      * @return void
      */
-    public function limpiarCarrito(): void {
+    public function clearCart(){
         unset($_SESSION['carrito']);
-        $this->initializeCart();
 
         if (isset($_SESSION['usuario'])) {
             $this->cartService->deleteCart($_SESSION['usuario']['id']);
         }
 
-        $this->renderCartView();
+        //$this->loadCart();
+        header("Location: " . BASE_URL . "Cart/loadCart");
     }
 
     /**
@@ -142,21 +155,30 @@ class CarritoController {
      * @var id id del producto a quitar del carrito´
      * @return void
      */
-    public function eliminarProducto(int $id): void {
+    public function removeItem (int $id){
         if(isset($_SESSION['carrito'][$id])){
             unset($_SESSION['carrito'][$id]);
 
             if (isset($_SESSION['usuario'])) {
                 $cart = $this->cartService->loadCart();
+    
                 if ($cart) {
                     $this->cartItemService->deleteItemFromCart($cart['id'], $id);
-                    $total = $this->precioTotal();
-                    $this->cartService->updateTotalPrice($cart['id'], $total);
                 }
             }
-            $this->renderCartView();
-        } else {
-            $this->renderCartView(['errorRemove' => 'Error al borrar el producto']);
+
+            $total = $this->priceTotal();
+
+            $this->cartService->updateTotalPrice($cart['id'], $total);
+
+            //$this->loadCart();
+            header("Location: " . BASE_URL . "Cart/loadCart");
+        }
+        else{
+            $errorRemove = 'Error al borrar el producto';
+            $total = $this->priceTotal();
+
+            $this->pages->render('Cart/cart',['errorRemove' => $errorRemove, 'total' => $total]); 
         }
     }
 
@@ -165,32 +187,43 @@ class CarritoController {
      * @var id id del produto a decrementar su cantidad
      * @return void
      */
-    public function bajarMonto(int $id): void {
-        if(!isset($_SESSION['carrito'][$id])){
-            $this->renderCartView(['error' => 'Producto no encontrado en el carrito']);
-            return;
-        }
+    public function downAmount(int $id){
+        if(isset($_SESSION['carrito'][$id])){
+            $_SESSION['carrito'][$id]['cantidad'] -= 1;
 
-        $_SESSION['carrito'][$id]['cantidad']--;
-
-        if($_SESSION['carrito'][$id]['cantidad'] <= 0){
-            unset($_SESSION['carrito'][$id]);
-        }
-
-        if (isset($_SESSION['usuario'])) {
-            $cart = $this->cartService->loadCart();
-            if ($cart) {
-                if (isset($_SESSION['carrito'][$id])) {
-                    $this->cartItemService->updateCartItem($cart['id'], $id, $_SESSION['carrito'][$id]['cantidad']);
-                } else {
-                    $this->cartItemService->deleteItemFromCart($cart['id'], $id);
+            
+            /* Actualizar cantidad en la base de datos si existe el producto en el
+            carrito del usuario y borrar el producto si es 0 */
+            if (isset($_SESSION['usuario'])) {
+                $cart = $this->cartService->loadCart();
+                if ($cart) {
+                    if ($_SESSION['carrito'][$id]['cantidad'] === 0) {
+                        $this->cartItemService->deleteItemFromCart($cart['id'], $id); 
+                    } 
+                    else {
+                        $this->cartItemService->updateCartItem($cart['id'], $id, $_SESSION['carrito'][$id]['cantidad']);    
+                    }
+                    
                 }
-                $total = $this->precioTotal();
-                $this->cartService->updateTotalPrice($cart['id'], $total);
             }
-        }
 
-        $this->renderCartView();
+            if($_SESSION['carrito'][$id]['cantidad'] === 0){
+                unset($_SESSION['carrito'][$id]);
+            }
+
+            $total = $this->priceTotal();
+
+            $this->cartService->updateTotalPrice($cart['id'], $total);
+
+            header("Location: " . BASE_URL . "Cart/loadCart");
+        }
+        else{
+            $error = 'Error al quitar unidades';
+            $total = $this->priceTotal();
+
+
+            $this->pages->render('Cart/cart',['error' => $error, 'total' => $total]); 
+        }
     }
 
     /**
@@ -198,29 +231,35 @@ class CarritoController {
      * @var id id del produto a aumentar su cantidad
      * @return void
      */
-    public function aumentarMonto(int $id): void {
-        if(!isset($_SESSION['carrito'][$id])){
-            $this->renderCartView(['error' => 'Producto no encontrado en el carrito']);
-            return;
-        }
+    public function upAmount(int $id){
+        if(isset($_SESSION['carrito'][$id])){
+            if($_SESSION['carrito'][$id]['cantidad'] === $_SESSION['carrito'][$id]['stock']){
+                //$this->loadCart(); 
+                header("Location: " . BASE_URL . "Cart/loadCart");
+            }
+            else{
+                $_SESSION['carrito'][$id]['cantidad'] += 1;
+                /* Actualizar cantidad en la base de datos si existe el producto en el
+                carrito del usuario */
+                if (isset($_SESSION['usuario'])) {
+                    $cart = $this->cartService->loadCart();
+                    if ($cart) {
+                        $this->cartItemService->updateCartItem($cart['id'], $id, $_SESSION['carrito'][$id]['cantidad']);
 
-        if($_SESSION['carrito'][$id]['cantidad'] >= $_SESSION['carrito'][$id]['stock']){
-            $this->renderCartView(['error' => 'Stock máximo alcanzado']);
-            return;
-        }
+                        $total = $this->priceTotal();
 
-        $_SESSION['carrito'][$id]['cantidad']++;
-
-        if (isset($_SESSION['usuario'])) {
-            $cart = $this->cartService->loadCart();
-            if ($cart) {
-                $this->cartItemService->updateCartItem($cart['id'], $id, $_SESSION['carrito'][$id]['cantidad']);
-                $total = $this->precioTotal();
-                $this->cartService->updateTotalPrice($cart['id'], $total);
+                        $this->cartService->updateTotalPrice($cart['id'], $total);
+                    }
+                }
+                header("Location: " . BASE_URL . "Cart/loadCart");
             }
         }
+        else{
+            $error = 'Error al añadir unidades';
+            $total = $this->priceTotal();
 
-        $this->renderCartView();
+            $this->pages->render('Cart/cart',['error' => $error, 'total' => $total]); 
+        }
     }
 
     /**
@@ -243,6 +282,8 @@ class CarritoController {
         }
 
         $cartItems = $this->cartItemService->loadCartItems($cart['id']);
+
+        //die(var_dump($cartItems));
 
         if (!empty($cartItems)) {  
     
@@ -282,7 +323,7 @@ class CarritoController {
             }
         }
     
-        header("Location: " . BASE_URL . "carrito/carrito");
+        header("Location: " . BASE_URL . "Cart/loadCart");
     }
     
 }

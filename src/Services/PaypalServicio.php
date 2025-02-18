@@ -23,13 +23,13 @@ class PayPalServicio {
     public function __construct() {
         $this->apiContext = new ApiContext(
             new OAuthTokenCredential(
-                $_ENV['PAYPAL_SANDBOX_CLIENT_ID'],     
-                $_ENV['PAYPAL_SANDBOX_CLIENT_SECRET']         
+                $_ENV['PAYPAL_CLIENT_ID'],     
+                $_ENV['PAYPAL_SECRET']         
             )
         );
 
         $this->apiContext->setConfig([
-                'mode' => $_ENV['PAYPAL_MODE'],
+                'mode' => $_ENV['PAYPAL_API_URL'],
         ]);
     }
 

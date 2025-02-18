@@ -17,7 +17,13 @@
                 <?php if (isset($_SESSION['usuario'])):  ?>
                     <li id="nombreUsuario"><?= $_SESSION['usuario']['nombre'] . " " . $_SESSION['usuario']['apellidos'] ?></li>
                     <li><a href="<?= BASE_URL ?>pedido/pedidos">Tus Pedidos</a></li>
+                    
+                    <?php if (isset($_SESSION["usuario"]["rol"]) && $_SESSION["usuario"]["rol"] === "admin"): ?>
+                        <!-- Solo visible para administradores -->
+                        <li><a href="<?= BASE_URL ?>pedido/verTodosLosPedidos">Ver Todos Los Pedidos</a></li>
+                    <?php endif; ?>
                 <?php endif; ?>
+
                 <li><a href="<?= BASE_URL ?>categorias/index">Categorias</a></li>
                 <li><a href="<?= BASE_URL ?>productos/index">Productos</a></li>
                 <li><a href="<?= BASE_URL ?>Cart/loadCart">Ver Carrito</a></li>
@@ -25,8 +31,6 @@
                     <li><a href="<?= BASE_URL ?>usuarios/registrar">Registrarse</a></li>
                     <li><a href="<?= BASE_URL ?>usuarios/iniciarSesion">Iniciar Sesión</a></li>
                 <?php else: ?>
-
-
                     <?php if (isset($_SESSION['usuario']) && $_SESSION["usuario"]["rol"] === "admin"): ?>
                         <li><a href="<?= BASE_URL ?>usuarios/registrar">Registrar Usuarios</a></li>
                     <?php endif; ?>

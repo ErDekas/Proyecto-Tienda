@@ -49,4 +49,25 @@ class PedidoServicio
     {
         return $this->pedidoRepository->verTodosLosPedidos();
     }
+    public function actualizarPedido(array $userData, int $id): bool|string {
+        try {
+            $order = new Pedido(
+                null,                        
+                0,                            
+                '',          
+                '',          
+                '',          
+                0.0,                          
+                $userData['estado'],                           
+                '',                           
+                ''                           
+            );
+
+            return $this->pedidoRepository->actualizarPedido($order, $id);
+        } 
+        catch (\Exception $e) {
+            error_log("Error al actualizar la categoria: " . $e->getMessage());
+            return false;
+        }
+    }
 }

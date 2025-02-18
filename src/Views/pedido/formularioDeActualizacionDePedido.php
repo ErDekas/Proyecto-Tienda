@@ -21,7 +21,7 @@
 
 <!-- Formulario para registrarse -->
 <h2>Actualizar Pedido</h2>
-<form action="<?= BASE_URL ?>pedido/verEstadoPedido/<?= $idPedido ?>" method="POST">
+<form action="<?= BASE_URL ?>pedido/formularioDeActualizacionDePedido/<?= $idPedido ?>" method="POST">
 
     <input type="hidden" name="idPedido" value="<?= $idPedido ?>">
 
@@ -43,7 +43,7 @@
 
     <input type="submit" value="Actualizar">
 
-    <p><a href="<?= BASE_URL ?>pedido/verTodos">Volver atras</a></p>
+    <p><a href="<?= BASE_URL ?>pedido/pedidos">Volver atras</a></p>
 </form>
 
 <?php 

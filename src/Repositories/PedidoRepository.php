@@ -91,4 +91,21 @@ class PedidoRepository
             return [];
         }
     }
+
+    public function actualizarPedido(Pedido $order, int $id): bool|string{
+        try {
+            $stmt = $this->conexion->prepare(
+                "UPDATE pedidos SET estado = :estado WHERE id = :idPedido");
+
+               
+            $stmt->bindValue(':estado', $order->getEstado(), PDO::PARAM_STR);
+            $stmt->bindValue(':idPedido', $id, PDO::PARAM_INT);
+
+            $stmt->execute();
+            return true;
+        } 
+        catch (PDOException $e) {
+            return $e->getMessage();
+        }
+    }
 }

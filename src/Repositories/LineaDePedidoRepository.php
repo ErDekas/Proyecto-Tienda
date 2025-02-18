@@ -44,24 +44,31 @@ class LineaDePedidoRepository
     }
 
     public function verLineasDePedido(int $pedido_id): array
-    {
-        try {
-            $stmt = $this->conexion->prepare("
+{
+    try {
+        $stmt = $this->conexion->prepare("
             SELECT 
-                lineas_pedidos.*, 
-                productos.nombre as producto_nombre,
-                productos.precio as producto_precio,
-                productos.descripcion as producto_descripcion
-            FROM lineas_pedidos 
-            LEFT JOIN productos ON lineas_pedidos.producto_id = productos.id 
-            WHERE pedido_id = :pedido_id
+                lp.*, 
+                p.nombre as producto_nombre,
+                p.precio as producto_precio,
+                p.descripcion as producto_descripcion
+            FROM lineas_pedidos lp
+            LEFT JOIN productos p ON lp.producto_id = p.id 
+            WHERE lp.pedido_id = :pedido_id
         ");
-            $stmt->bindValue(':pedido_id', $pedido_id, PDO::PARAM_INT);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log($e->getMessage());
-            return [];
-        }
+        
+        $stmt->bindValue(':pedido_id', $pedido_id, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Debug
+        error_log("SQL para pedido $pedido_id: " . print_r($result, true));
+        
+        return $result;
+    } catch (PDOException $e) {
+        error_log("Error en verLineasDePedido: " . $e->getMessage());
+        return [];
     }
+}
 }

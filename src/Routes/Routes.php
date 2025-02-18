@@ -190,7 +190,16 @@ class Routes
         Router::add('GET', 'pedido/pedidos', function () {
             (new PedidoController())->verPedidos();
         });
+        Router::add('GET', 'pedido/verTodosLosPedidos', function () {
+            (new PedidoController())->verTodosLosPedidos();
+        });
+        Router::add('GET','/pedido/formularioDeActualizacionDePedido/:id',function(int $id){
+            (new PedidoController())->actualizarEstadoPedidos($id);
+        });
 
+        Router::add('POST','/pedido/formularioDeActualizacionDePedido/:id',function(int $id){
+            (new PedidoController())->actualizarEstadoPedidos($id);
+        });
         Router::add('GET', '/error404', function () {
             ErrorController::error404();
         });

@@ -161,4 +161,23 @@ class Pedido
         $this->provincia = Validar::sanitizarString($this->provincia);
         $this->localidad = Validar::sanitizarString($this->localidad);
     }
+    
+    public function sanitizarDatosActualizado(): void {
+        $this->estado = Validar::sanitizarString($this->estado);
+    }
+
+    public function validarDatosActualizado(): array {
+        $errores = [];
+    
+        // Validar dirección
+        if (empty($this->estado)) {
+            $errores["estado"] = "El campo 'estado' es obligatorio";
+        } 
+
+        if (!Validar::validarString($this->estado)) {
+            $errores["estado"] = "El formato del estado no es valido";
+        }
+    
+        return $errores;
+    }
 }

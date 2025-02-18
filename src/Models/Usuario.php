@@ -206,10 +206,11 @@ class Usuario
         $errores = [];
 
         
-        if (empty($_POST['data']['contrasena'])) {
+        if (empty($this->password)) {
             $errores['contrasena'] = "El campo contraseña es obligatorio.";
         }
-        else if(!Validar::validarPassword($_POST['data']['contrasena'])){
+
+        else if(!Validar::validarPassword($this->password)){
             $errores['contrasena'] = "La contraseña no es válida";
         }
 

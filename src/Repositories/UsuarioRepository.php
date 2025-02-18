@@ -226,30 +226,6 @@ class UsuarioRepository
         }
     }
 
-    public function guardarTokenRecuperacion(string $email, string $token, string $expiry): bool
-    {
-        try {
-            $stmt = $this->conexion->prepare(
-                "UPDATE usuarios 
-             SET token_recuperacion = :token, token_expiracion = :expiry 
-             WHERE email = :email"
-            );
-
-            $stmt->bindValue(':token', $token, PDO::PARAM_STR);
-            $stmt->bindValue(':expiry', $expiry, PDO::PARAM_STR);
-            $stmt->bindValue(':email', $email, PDO::PARAM_STR);
-            $stmt->execute();
-
-            return $stmt->rowCount() > 0;
-        } catch (PDOException $e) {
-            error_log("Error al guardar el token de recuperación: " . $e->getMessage());
-            return false;
-        } finally {
-            if (isset($stmt)) {
-                $stmt->closeCursor();
-            }
-        }
-    }
     public function updateUserPassword (Usuario $user, int $id): bool|string{
         try {
             $stmt = $this->conexion->prepare(
@@ -301,6 +277,7 @@ class UsuarioRepository
         return $fechaActual > $fechaExpiracion;
     }
     private function actualizarContraseñaUsuario(int $id, string $token, string $password): bool {
+        error_log("Hash a guardar en BD: " . $password);
         $stmt = $this->conexion->prepare(
             "UPDATE usuarios SET password = :password, token = NULL, token_exp = NULL 
              WHERE id = :id AND token = :token"

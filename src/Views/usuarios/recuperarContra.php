@@ -7,10 +7,10 @@ if (session_status() === PHP_SESSION_NONE) {
 <div id="registrar">
 
     <?php
-    if (isset($_SESSION['contraseña'])):
+    if (isset($_SESSION['password'])):
     ?>
         <h2>Contraseña cambiado con exito</h2>
-        <?php unset($_SESSION['contraseña']) ?>
+        <?php unset($_SESSION['password']) ?>
     <?php elseif (isset($_SESSION['falloDatos'])): ?>
 
         <h2>Los datos no se han enviado correctamente</h2>
@@ -22,10 +22,10 @@ if (session_status() === PHP_SESSION_NONE) {
         <h2>Formulario de cambio de contraseña</h2>
         <form action="<?= BASE_URL ?>usuarios/recuperarContra?token=<?= $token ?>" method="POST">
 
-            <label for="contrasena">Contraseña:</label>
-            <input type="password" name="data[contrasena]" id="contrasena"><br><br>
-            <?php if (isset($errores['contrasena'])): ?>
-                <p class="error"><?php echo $errores['contrasena']; ?></p>
+            <label for="password">Contraseña:</label>
+            <input type="password" name="data[password]" id="password"><br><br>
+            <?php if (isset($errores['password'])): ?>
+                <p class="error"><?php echo $errores['password']; ?></p>
             <?php endif; ?>
 
             <label for="confirmar_contrasena">Confirmar Contraseña:</label>

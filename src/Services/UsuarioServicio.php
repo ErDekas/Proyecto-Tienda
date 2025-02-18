@@ -80,7 +80,11 @@ class UsuarioServicio
 
     public function iniciarSesion(string $correo, string $contrasena): ?array {
         $usuario = $this->obtenerCorreo($correo);
-
+        error_log("Tipo de contraseña: " . gettype($contrasena));
+        error_log("Longitud de contraseña: " . strlen($contrasena));
+        error_log("Contraseña en bytes: " . bin2hex($contrasena));
+        if ($usuario && $this->security->validatePassw($contrasena, $usuario['password'])) {
+            
         if ($usuario && password_verify($contrasena, $usuario['password'])) {
             if (!$usuario['confirmado']) {
                 throw new \Exception('Cuenta no confirmada. Por favor, revisa tu correo.');
@@ -96,32 +100,11 @@ class UsuarioServicio
             $usuario['token'] = $token;
             return $usuario;
         }
+    }
 
         return null;
     }
-
-    public function guardarTokenRecuperacion(string $email, string $token, string $expiry): bool {
-        try {
-            // Verificar si el usuario existe antes de guardar el token
-            $usuario = $this->obtenerCorreo($email);
     
-            if (!$usuario) {
-                throw new \Exception('No existe ninguna cuenta asociada a este correo electrónico.');
-            }
-    
-            // Delegar la operación de guardado al repositorio
-            $resultado = $this->repository->guardarTokenRecuperacion($email, $token, $expiry);
-    
-            if (!$resultado) {
-                throw new \Exception('Error al guardar el token de recuperación en la base de datos.');
-            }
-    
-            return true;
-        } catch (\Exception $e) {
-            // Registrar el error o manejarlo según sea necesario
-            throw new \Exception('Error en el servicio al guardar el token de recuperación: ' . $e->getMessage());
-        }
-    }
     public function updateUserPassword(array $userData, int $id): bool|string {
         try {
             $user = new Usuario(

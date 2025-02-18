@@ -303,6 +303,7 @@ class UsuarioController
           if($_POST['data']){
 
                 $data = $_POST['data'];
+                error_log("Contraseña recibida: " . $data['contrasena']);
                 $user = $this->user = Usuario::fromArray($data);
                 
                 // Sanitizar datos
@@ -311,7 +312,7 @@ class UsuarioController
                 // Validar datos
                 $errores = $user->validarDatosCambioContraseña();
 
-                if($data['contrasena'] !== $data['confirmar_contrasena']){
+                if($data['password'] !== $data['confirmar_contrasena']){
                     $errores['confirmar_contrasena'] = "Las contraseñas no son iguales";
                 }
 
@@ -321,12 +322,16 @@ class UsuarioController
                 }
 
                 $contraseñaCambiar = $this->security->encryptPassw($user->getPassword());
-
+                error_log("Hash generado: " . $contraseñaCambiar);
                 //$token = $_GET['token'] ?? null;
                 try {
                     $resultado = $this->userService->changePassword($token, $contraseñaCambiar);
+                    error_log($resultado);
                     if ($resultado) {
                         $_SESSION['mensaje'] = "Contraseña cambiada exitosamente. Ya puedes iniciar sesión.";
+                        error_log(
+                        $_SESSION['mensaje'] = "Contraseña cambiada exitosamente. Ya puedes iniciar sesión."
+                        );
                     } else {
                         $_SESSION['error'] = "No se pudo cambiar la contraseña. El token puede haber expirado o ser inválido.";
                     }

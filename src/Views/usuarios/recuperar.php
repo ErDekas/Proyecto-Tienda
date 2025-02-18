@@ -1,4 +1,3 @@
-<!-- Formulario para iniciar sesión -->
 <div id="inicioSesion">
     <?php
     if (isset($_SESSION['cambio'])):

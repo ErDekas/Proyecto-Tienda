@@ -82,13 +82,13 @@ class PedidoController
                 $currency = 'EUR';
                 $description = 'Pedido en Fake Web Storage';
                 $returnUrl = BASE_URL;
-                $cancelUrl = BASE_URL . 'order/paymentCancel';
+                $cancelUrl = BASE_URL . 'pedido/pagoCancelado';
                 $paypalUrl = $this->paypalService->createPayment($totalAmount, $currency, $description, $returnUrl, $cancelUrl);
                 if ($paypalUrl) {
                     header("Location: " . $paypalUrl);
                 } else {
                     $errores['payment'] = 'No se pudo procesar el pago. Intenta nuevamente.';
-                    $this->pages->render('Order/formOrder', ["errores" => $errores]);
+                    $this->pages->render('pedido/formularioDePedido', ["errores" => $errores]);
                     return;
                 }
                 $resultado = $this->pedidoServicio->guardarPedido($datos_pedido);
@@ -280,7 +280,7 @@ class PedidoController
         } else {
             // Si el pago no fue exitoso
             $errores['payment'] = 'El pago no se completó correctamente.';
-            $this->pages->render('Order/formOrder', ["errores" => $errores]);
+            $this->pages->render('pedido/formularioDePedido', ["errores" => $errores]);
         }
     }
 }

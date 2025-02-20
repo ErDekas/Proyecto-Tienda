@@ -8,6 +8,7 @@ use Services\UsuarioServicio;
 use Lib\Utils;
 use Lib\Security;
 use Lib\MailRecuperacion;
+use Controllers\CartController;
 
 class UsuarioController
 {
@@ -18,6 +19,7 @@ class UsuarioController
     private MailRecuperacion $mailer;
     private Utils $utils;
     private Security $security;
+    private CartController $cartController;
 
     public function __construct()
     {
@@ -27,7 +29,7 @@ class UsuarioController
         $this->mailer = new MailRecuperacion();
         $this->utils = new Utils();
         $this->security = new Security();
-
+        $this->cartController = new CartController();
     }
 
     // Método para registrarse
@@ -124,17 +126,13 @@ class UsuarioController
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-
             if ($this->utils->isSession()) {
                 header("Location: " . BASE_URL . "");
             } else {
-
                 $this->pages->render('usuarios/iniciaSesion');
             }
         } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
             $errores = [];
-
 
             $correo = $_POST['correo'];
             $passwordInicioSesion = $_POST['password'];
@@ -153,7 +151,6 @@ class UsuarioController
             // Si no hay errores volver a inicio si hay mostrarlos en el formulario
             if (empty($errores)) {
                 $resultado = $this->userService->iniciarSesion($usuario->getCorreo(), $usuario->getPassword());
-
                 if ($resultado) {
                     $_SESSION['usuario'] = $resultado;
 
@@ -161,6 +158,15 @@ class UsuarioController
                         echo "Error: la sesión no se ha establecido";
                         exit;
                     }
+
+                    // Sincronizar el carrito después de iniciar sesión exitosamente
+                    try {
+                        $this->cartController->syncCartAfterLogin();
+                    } catch (\Exception $e) {
+                        error_log("Error al sincronizar el carrito: " . $e->getMessage());
+                        // No interrumpimos el flujo de login si falla la sincronización
+                    }
+
                     header("Location: " . BASE_URL);
                     exit;
                 } else {
